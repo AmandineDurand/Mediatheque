@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash
 
 OWNER_UID="$(stat -c %u ${WWW_ROOT})"
 OWNER_GID="$(stat -c %g ${WWW_ROOT})"
