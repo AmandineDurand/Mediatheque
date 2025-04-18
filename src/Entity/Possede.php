@@ -7,53 +7,54 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'Possede')]
-#[ORM\Index(name: 'idAbo', columns: ['idAbo'])]
 #[ORM\Entity(repositoryClass: PossedeRepository::class)]
 class Possede
 {
-    #[ORM\Column]
     #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: "NONE")]
-    private ?int $idUtil = null;
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: 'abonnements')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Utilisateur $utilisateur = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true, options: ["default" => 'NULL'])]
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $dateDebut = null;
 
-    #[ORM\Column]
-    private ?int $idAbo = null;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Abonnement::class, inversedBy: 'possedes')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Abonnement $abonnement = null;
 
-    public function getIdutil(): ?int
+    public function getUtilisateur(): ?Utilisateur
     {
-        return $this->idUtil;
+        return $this->utilisateur;
     }
 
-    public function setIdutil(int $idUtil): static
+    public function setUtilisateur(?Utilisateur $utilisateur): static
     {
-        $this->idUtil = $idUtil;
+        $this->utilisateur = $utilisateur;
 
         return $this;
     }
 
-    public function getDatedebut(): ?\DateTimeInterface
+    public function getDateDebut(): ?\DateTimeInterface
     {
         return $this->dateDebut;
     }
 
-    public function setDatedebut(?\DateTimeInterface $dateDebut): static
+    public function setDateDebut(\DateTimeInterface $dateDebut): static
     {
         $this->dateDebut = $dateDebut;
 
         return $this;
     }
 
-    public function getIdabo(): ?int
+    public function getAbonnement(): ?Abonnement
     {
-        return $this->idAbo;
+        return $this->abonnement;
     }
 
-    public function setIdabo(int $idAbo): static
+    public function setAbonnement(?Abonnement $abonnement): static
     {
-        $this->idAbo = $idAbo;
+        $this->abonnement = $abonnement;
 
         return $this;
     }

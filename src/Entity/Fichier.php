@@ -7,27 +7,27 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'Fichier')]
-#[ORM\Index(name: 'idAbo', columns: ['idAbo'])]
 #[ORM\Entity(repositoryClass: FichierRepository::class)]
 class Fichier
 {
-    #[ORM\Column]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: "IDENTITY")]
-    private ?int $idFichier = null;
+    #[ORM\Column(type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 100, nullable: false)]
     private ?string $nomFichier = null;
 
-    #[ORM\Column(length: 500)]
+    #[ORM\Column(length: 500, nullable: false)]
     private ?string $contenuFichier = null;
 
-    #[ORM\Column]
-    private ?int $idAbo = null;
+    #[ORM\ManyToOne(targetEntity:Abonnement::class, inversedBy: 'fichiers')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Abonnement $abonnement = null;
 
     public function getIdfichier(): ?int
     {
-        return $this->idFichier;
+        return $this->id;
     }
 
     public function getNomfichier(): ?string
@@ -54,14 +54,14 @@ class Fichier
         return $this;
     }
 
-    public function getIdabo(): ?int
+    public function getAbonnement(): ?Abonnement
     {
-        return $this->idAbo;
+        return $this->abonnement;
     }
 
-    public function setIdabo(int $idAbo): static
+    public function setAbonnement(?Abonnement $abonnement): static
     {
-        $this->idAbo = $idAbo;
+        $this->abonnement = $abonnement;
 
         return $this;
     }

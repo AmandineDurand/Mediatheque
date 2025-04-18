@@ -3,34 +3,58 @@
 namespace App\Entity;
 
 use App\Repository\CommandeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'Commande')]
-#[ORM\Index(name: 'idUtil', columns: ['idUtil'])]
 #[ORM\Entity(repositoryClass: CommandeRepository::class)]
 class Commande
 {
-    #[ORM\Column]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: "IDENTITY")]
-    private ?int $idCom = null;
+    #[ORM\Column(type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true, options: ["default" => 'NULL'])]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateCom = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true, options: ["default" => 'NULL'])]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateRetrait = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true, options: ["default" => 'NULL'])]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateRendu = null;
 
-    #[ORM\Column]
-    private ?int $idUtil = null;
+    /**
+     * @var Collection<int, Document>
+     */
+    #[ORM\ManyToMany(targetEntity: Document::class, inversedBy: 'commandes')]
+    #[ORM\JoinTable(name: 'Contient', 
+    joinColumns: [new ORM\JoinColumn(name: 'idCom', referencedColumnName: 'id')],
+    inverseJoinColumns: [new ORM\JoinColumn(name: 'idDoc', referencedColumnName: 'id')]
+    )]
+    private Collection $documents;
+
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: 'commandes')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Utilisateur $utilisateur = null;
+
+    /**
+     * @var Collection<int, Contentieux>
+     */
+    #[ORM\OneToMany(targetEntity: Contentieux::class, mappedBy: 'commande')]
+    private Collection $contentieux;
+
+    public function __construct()
+    {
+        $this->documents = new ArrayCollection();
+        $this->contentieux = new ArrayCollection();
+    }
 
     public function getIdcom(): ?int
     {
-        return $this->idCom;
+        return $this->id;
     }
 
     public function getDatecom(): ?\DateTimeInterface
@@ -69,14 +93,68 @@ class Commande
         return $this;
     }
 
-    public function getIdutil(): ?int
+    /**
+     * @return Collection<int, Document>
+     */
+    public function getDocuments(): Collection
     {
-        return $this->idUtil;
+        return $this->documents;
     }
 
-    public function setIdutil(int $idUtil): static
+    public function addDocument(Document $document): static
     {
-        $this->idUtil = $idUtil;
+        if (!$this->documents->contains($document)) {
+            $this->documents->add($document);
+        }
+
+        return $this;
+    }
+
+    public function removeDocument(Document $document): static
+    {
+        $this->documents->removeElement($document);
+
+        return $this;
+    }
+
+    public function getUtilisateur(): ?Utilisateur
+    {
+        return $this->utilisateur;
+    }
+
+    public function setUtilisateur(?Utilisateur $utilisateur): static
+    {
+        $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Contentieux>
+     */
+    public function getContentieux(): Collection
+    {
+        return $this->contentieux;
+    }
+
+    public function addContentieux(Contentieux $contentieux): static
+    {
+        if (!$this->contentieux->contains($contentieux)) {
+            $this->contentieux->add($contentieux);
+            $contentieux->setCommande($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContentieux(Contentieux $contentieux): static
+    {
+        if ($this->contentieux->removeElement($contentieux)) {
+            // set the owning side to null (unless already changed)
+            if ($contentieux->getCommande() === $this) {
+                $contentieux->setCommande(null);
+            }
+        }
 
         return $this;
     }

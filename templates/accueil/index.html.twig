@@ -1,0 +1,156 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    {% if app.user %}
+            <p class="mb-3">Bonjour {{ app.user.userIdentifier }}</p>
+    {% endif %}
+    <style>
+    .accordion-button:not(.collapsed) {
+        background-color: white !important;
+        color: black;
+        box-shadow: none;
+    }
+
+    .accordion-button:focus {
+        box-shadow: none;
+        outline: none;
+    }
+    </style>
+
+    <!-- Hero Section -->
+    <section class="bg-dark text-white text-center py-5">
+        <div class="container">
+            <h1 class="display-4 fw-bold">Médiathèque de Montpellier</h1>
+            <p class="lead">Culture, savoir et découvertes au cœur de la ville</p>
+            <a href="#infos" class="btn btn-primary m-2">Infos pratiques</a>
+            <a href="#abonnement" class="btn btn-outline-light m-2">S’abonner</a>
+        </div>
+    </section>
+
+    <!-- Infos pratiques -->
+    <section id="infos" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="mb-4">📌 Informations pratiques</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>🕒 Horaires d'ouverture</h5>
+                    <ul class="list-unstyled">
+                        <li>• Mardi à Samedi : <strong>10h - 18h</strong></li>
+                        <li>• Vendredi : <strong>14h - 18h</strong></li>
+                        <li>• Fermée : <strong>Lundi, Dimanche et jours fériés</strong></li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>📍 Adresse</h5>
+                    <p>240, rue de l'Acropole<br>34000 Montpellier</p>
+                    <a href="https://www.google.com/maps/place/240+Rue+de+l'Acropole,+34000+Montpellier" target="_blank" class="btn btn-outline-secondary btn-sm">Voir sur la carte</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Abonnement -->
+    <section id="abonnement" class="py-5">
+        <div class="container">
+            <h2 class="mb-4">💳 Abonnements</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card h-100 border-success">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">Gratuit</h5>
+                            <p class="card-text">
+                            Pour :
+                            <ul>
+                                <li>Habitants de l’agglomération</li>
+                                <li>Moins de 12 ans</li>
+                                <li>Moins de 18 ans scolarisés dans l’agglo</li>
+                            </ul>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">Payant</h5>
+                            <ul>
+                                <li>Abonnement annuel : <strong>22€</strong></li>
+                                <li>Abonnement mensuel : <strong>10,50€</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Règles d’emprunt -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="mb-4">📚 Règles d’emprunt</h2>
+            <div class="accordion" id="reglesAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading1">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#regle1">
+                        Commandes & Quantité
+                    </button>
+                    </h2>
+                    <div id="regle1" class="accordion-collapse collapse" data-bs-parent="#reglesAccordion">
+                        <div class="accordion-body">
+                            • Une seule commande à la fois par adhérent<br>
+                            • Maximum de 6 documents par commande
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#regle2">
+                        Délai & Retard
+                    </button>
+                    </h2>
+                    <div id="regle2" class="accordion-collapse collapse" data-bs-parent="#reglesAccordion">
+                        <div class="accordion-body">
+                            • 0,50€/jour (3 premiers jours)<br>
+                            • 1€/jour ensuite<br>
+                            Paiement à la médiathèque
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading3">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#regle3">
+                        Documents détériorés
+                    </button>
+                    </h2>
+                    <div id="regle3" class="accordion-collapse collapse" data-bs-parent="#reglesAccordion">
+                        <div class="accordion-body">
+                            <strong>Léger :</strong> 1€<br>
+                            <em>Ex : coin corné, boîtier fendu…</em><br><br>
+                            <strong>Modéré :</strong> 3€<br>
+                            <em>Ex : pages tachées, rayures…</em><br><br>
+                            <strong>Grave / Perte :</strong> Remboursement ou rachat
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading4">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#regle4">
+                        Blocage
+                    </button>
+                    </h2>
+                    <div id="regle4" class="accordion-collapse collapse" data-bs-parent="#reglesAccordion">
+                        <div class="accordion-body">
+                            Après 10 contentieux cumulés → blocage de 2 mois
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

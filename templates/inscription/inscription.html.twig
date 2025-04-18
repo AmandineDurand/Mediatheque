@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+    <h1 class="h3 mb-3 mt-3 font-weight-normal">Inscription</h1>
+
+    {{ form_errors(inscriptionForm) }}
+
+    {{ form_start(inscriptionForm, { attr: { 'data-turbo': 'false' } }) }}
+        <div class="row">
+            <div class="col-sm">
+                {# {{ form_row(inscriptionForm.nomUtil) }} #}
+                {{ form_label(inscriptionForm.nomUtil, 'Nom') }}
+                {{ form_widget(inscriptionForm.nomUtil, { 'attr': { 'class': 'form-control' } }) }}
+                {{ form_errors(inscriptionForm.nomUtil) }}
+            </div>
+            <div class="col-sm">
+                {# {{ form_row(inscriptionForm.prenomUtil) }} #}
+                {{ form_label(inscriptionForm.prenomUtil, 'Prénom') }}
+                {{ form_widget(inscriptionForm.prenomUtil, { 'attr': { 'class': 'form-control' } }) }}
+                {{ form_errors(inscriptionForm.prenomUtil) }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ form_label(inscriptionForm.emailUtil, 'Email') }}
+                {{ form_widget(inscriptionForm.emailUtil, { 'attr': { 'class': 'form-control' } }) }}
+                {{ form_errors(inscriptionForm.emailUtil) }}
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                {{ form_label(inscriptionForm.mdp, 'Mot de passe') }}
+                {{ form_widget(inscriptionForm.mdp, { 'attr': { 'class': 'form-control' } }) }}
+                {{ form_errors(inscriptionForm.mdp) }}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-lg btn-primary">S'inscrire</button>
+    {{ form_end(inscriptionForm) }}
+
+{% endblock %}

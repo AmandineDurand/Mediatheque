@@ -1,0 +1,43 @@
+{# {% macro card(title, img_src, img_alt, href, subtitle = null, subtitle2 = null, buttons) %} #}
+{% macro card(title, img_src, img_alt, href, subtitle = null, subtitle2 = null) %}
+    <div class="card">
+        <div class="ratio ratio-1x1">
+            <img 
+                src="{{ img_src }}" 
+                alt="{{ img_alt }} profile picture" 
+                class="card-img-top object-fit-cover"
+            >
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">{{ title }}</h5>
+            {% if subtitle is not null %}
+                <p class="card-title text-secondary">{{ subtitle }}</p>
+                <p class="card-title">{{ subtitle2 }}</p>
+            {% endif %}
+            {{ _self.btn('Show', href) }}
+            {# {% for btn in buttons %}
+                {{ btn }}
+            {% endfor %} #}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro btn(label, href, variant = 'primary', size = 'md', margin = 'mt-3') %}
+    <a href="{{ href }}" class="btn btn-{{ variant }} btn-{{ size }} {{ margin }}">{{ label }}</a>
+{% endmacro %}
+
+{% macro nav_item(label, href, current_route, namespace) %}
+    {% set is_active = current_route starts with namespace %}
+    <li class="nav-item">
+        <a 
+            {% if is_active %}
+                class="nav-link active"
+            {% else %}
+                class="nav-link"
+            {% endif %}   
+            href="{{ href }}"
+        >
+            {{ label }}
+        </a>
+    </li>
+{% endmacro %}

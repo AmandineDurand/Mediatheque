@@ -1,0 +1,34 @@
+{% import "component.html.twig" as component %}
+{% set route_name = app.request.attributes.get('_route') %}
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container">
+        <a href="{{ path('accueil') }}" class="navbar-brand">
+            <img src="{{ asset('images/logo.png') }}" alt="logo">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            {% if is_granted('ROLE_INSCRIT') %}
+                {{ component.nav_item('Mentions', path('mentions'), route_name, 'mentions')}}
+            {% elseif is_granted('ROLE_USER') %}
+                {{ component.nav_item('Contact', path('contact'), route_name, 'contact')}}
+            {% endif %}
+            {# {{ component.nav_item('Artists', path('app_artist_index'), route_name, 'app_artist')}}
+            {{ component.nav_item('Releases', path('app_release_index'), route_name, 'app_release')}}
+            {{ component.nav_item('Tracks', path('app_track_index'), route_name, 'app_track')}} #}
+            </ul>
+            <ul class="navbar-nav">
+                {% if is_granted('ROLE_USER') %}
+                    {{ component.nav_item(app.user.prenomUtil ~ ' ' ~ app.user.nomUtil, '#')}}
+                    {{ component.nav_item('Déconnexion', path('deconnexion'))}}
+                {% else %}
+                    {{ component.nav_item('Connexion', path('connexion'))}}
+                    {{ component.nav_item('Inscription', path('inscription'))}}
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

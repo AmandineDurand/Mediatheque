@@ -7,31 +7,31 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'Avis')]
-#[ORM\Index(name: 'idDoc', columns: ['idDoc'])]
-#[ORM\Index(name: 'idUtil', columns: ['idUtil'])]
 #[ORM\Entity(repositoryClass: AvisRepository::class)]
 class Avis
 {
-    #[ORM\Column]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: "IDENTITY")]
-    private ?int $idAvis = null;
+    #[ORM\Column(type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(nullable: true, options: ["default" => NULL])]
+    #[ORM\Column(nullable: true)]
     private ?int $note = NULL;
 
-    #[ORM\Column(length: 255, nullable: true, options: ["default" => 'NULL'])]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $commentaire = 'NULL';
 
-    #[ORM\Column]
-    private ?int $idDoc = null;
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: 'avis')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Utilisateur $utilisateur = null;
 
-    #[ORM\Column]
-    private ?int $idUtil = null;
+    #[ORM\ManyToOne(targetEntity: Document::class, inversedBy: 'avis')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Document $document = null;
 
     public function getIdavis(): ?int
     {
-        return $this->idAvis;
+        return $this->id;
     }
 
     public function getNote(): ?int
@@ -58,26 +58,26 @@ class Avis
         return $this;
     }
 
-    public function getIddoc(): ?int
+    public function getUtilisateur(): ?Utilisateur
     {
-        return $this->idDoc;
+        return $this->utilisateur;
     }
 
-    public function setIddoc(int $idDoc): static
+    public function setUtilisateur(?Utilisateur $utilisateur): static
     {
-        $this->idDoc = $idDoc;
+        $this->utilisateur = $utilisateur;
 
         return $this;
     }
 
-    public function getIdutil(): ?int
+    public function getDocument(): ?Document
     {
-        return $this->idUtil;
+        return $this->document;
     }
 
-    public function setIdutil(int $idUtil): static
+    public function setDocument(?Document $document): static
     {
-        $this->idUtil = $idUtil;
+        $this->document = $document;
 
         return $this;
     }

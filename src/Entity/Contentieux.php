@@ -5,35 +5,36 @@ namespace App\Entity;
 use App\Repository\ContentieuxRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Enum\TypeCont;
 
 #[ORM\Table(name: 'Contentieux')]
-#[ORM\Index(name: 'idCom', columns: ['idCom'])]
 #[ORM\Entity(repositoryClass: ContentieuxRepository::class)]
 class Contentieux
 {
-    #[ORM\Column]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: "IDENTITY")]
-    private ?int $idCont = null;
+    #[ORM\Column(type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $dateCont = null;
 
-    #[ORM\Column(type: Types::STRING)]
-    private ?string $typeCont = null;
+    #[ORM\Column(type: 'string', enumType: TypeCont::class)]
+    private string $typeCont;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $nbDoc = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $infosCont = null;
 
-    #[ORM\Column]
-    private ?int $idCom = null;
+    #[ORM\ManyToOne(targetEntity: Commande::class, inversedBy: 'contentieux')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Commande $commande = null;
 
     public function getIdcont(): ?int
     {
-        return $this->idCont;
+        return $this->id;
     }
 
     public function getDatecont(): ?\DateTimeInterface
@@ -84,14 +85,14 @@ class Contentieux
         return $this;
     }
 
-    public function getIdcom(): ?int
+    public function getCommande(): ?Commande
     {
-        return $this->idCom;
+        return $this->commande;
     }
 
-    public function setIdcom(int $idCom): static
+    public function setCommande(?Commande $commande): static
     {
-        $this->idCom = $idCom;
+        $this->commande = $commande;
 
         return $this;
     }
