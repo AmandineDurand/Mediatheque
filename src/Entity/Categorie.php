@@ -7,9 +7,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Table(name: 'Categorie')]
 #[ORM\Entity(repositoryClass: CategorieRepository::class)]
+#[UniqueEntity(fields: ['nom'], message: 'Cette catégorie existe déjà, veuillez en saisir une autre.')]
 class Categorie
 {
     #[ORM\Id]
@@ -17,7 +19,7 @@ class Categorie
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::STRING, nullable: false)]
+    #[ORM\Column(type: Types::STRING, nullable: false, unique: true)]
     private string $nom;
 
     /**
@@ -31,17 +33,17 @@ class Categorie
         $this->documents = new ArrayCollection();
     }
 
-    public function getIdcat(): ?int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getNomcat(): ?string
+    public function getNom(): ?string
     {
         return $this->nom;
     }
 
-    public function setNomcat(string $nomcat): static
+    public function setNom(string $nomcat): static
     {
         $this->nom = $nomcat;
 

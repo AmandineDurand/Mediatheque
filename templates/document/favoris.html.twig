@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Favoris{% endblock %}
+
+{% block body %}
+    <div class="container mt-3">
+        <h1 class="h3 mb-3 mt-3 font-weight-normal">Mes documents favoris</h1>
+        
+        {% if documents is not empty %}
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <tbody>
+                        {% for document in documents %}
+                            <tr>
+                                <td style="width: 100px;">
+                                    <img src="{{ document.url }}" alt="Image" class="img-fluid rounded" style="max-height: 80px;">
+                                </td>
+                                <td>{{ document.titreDoc }}</td>
+                                <td>{{ document_types[document.id] }}</td>
+                                <td>{{ document.resumeDoc|length > 50 ? document.resumeDoc|slice(0, 50) ~ '…' : document.resumeDoc }}</td>
+                                <td style="width: 25%;">
+                                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                        <a href="{{ path('app_document_show', {'id': document.id}) }}" class="btn btn-sm btn-info">Voir</a>
+                                        <a href="{{ path('app_toggle_favori', {'id': document.id}) }}" class="btn btn-sm btn-outline-success">Ne plus aimer</a>
+
+                                        {% if is_granted('ROLE_ADHERENT') %}
+                                            {% if document.stockDoc == 0 %}
+                                                <span class="btn btn-light btn-sm disabled">Indisponible</span>
+                                            {% else %}
+                                                <a href="{{ path('app_document_edit', {'id': document.id}) }}" class="btn btn-sm btn-primary">Emprunter</a>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-warning mt-4">Aucun document ajouté aux favoris.</div>
+        {% endif %}
+    </div>
+{% endblock %}

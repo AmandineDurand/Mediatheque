@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon profil{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="card shadow-sm rounded p-4">
+        <h1 class="h3 mb-4">👤 Mon profil</h1>
+
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Nom :</strong> {{ user.nomUtil }}</li>
+            <li class="list-group-item"><strong>Prénom :</strong> {{ user.prenomUtil }}</li>
+            <li class="list-group-item"><strong>Email :</strong> {{ user.emailUtil }}</li>
+            <li class="list-group-item"><strong>Rôle :</strong> 
+                {% if 'ROLE_BIBLIOTHECAIRE' in user.roles %}
+                    Vous êtes une bibliothécaire 📚
+                {% elseif 'ROLE_ADHERENT' in user.roles %}
+                    Vous êtes adhérent(e) ✅
+                {% elseif 'ROLE_INSCRIT' in user.roles %}
+                    Vous êtes inscrit(e) 📝
+                {% else %}
+                    Rôle inconnu 🤔
+                {% endif %}
+            </li>
+            {% if abonnement %}
+                <li class="list-group-item">
+                    <strong>Abonnement :</strong> 
+                    <div class="d-flex align-items-center">
+                        <div class="me-3"><strong>Type :</strong> {{ abonnement.type == 'mensuel' ? 'Mensuel' : 'Annuel' }}</div>
+                        <div class="me-3"><strong>Date de début :</strong> {{ abonnement.debut|date('d/m/Y') }}</div>
+                        <div class="me-3"><strong>Date de fin :</strong> {{ abonnement.fin|date('d/m/Y') }}</div>
+                        <div><strong>Prix :</strong> {{ abonnement.prix }}</div>
+                    </div>
+                </li>
+            {% elseif is_granted('ROLE_INSCRIT') and not is_granted('ROLE_BIBLIOTHECAIRE') %}
+                <li class="list-group-item">
+                    <div class="row align-items-center">
+                        <div class="col-3">
+                            <span class="text-warning">Aucun abonnement actif</span>
+                        </div>
+                        <div class="col-auto">
+                            <a href="#" class="btn btn-primary btn-sm">Faire une demande</a>
+                        </div>
+                    </div>
+                </li>
+            {% endif %}
+            <li class="list-group-item">
+                {% if user.nbContentieux is empty or user.nbContentieux == 0 %}
+                    <span class="text-success">Aucun contentieux à ce jour !</span>
+                {% else %}
+                    <strong>Contentieux : </strong>{{ user.nbContentieux }}
+                {% endif %}
+            </li>
+        </ul>
+
+        <div class="mt-4 text-end">
+            <a href="{{ path('app_profile_edit') }}" class="btn btn-primary">
+                ✏️ Modifier mes infos
+            </a>
+        </div>
+    </div>
+
+    {% if warningMessage %}
+        <div class="row">
+            <div class="col-9">
+                <div class="alert alert-warning">
+                    {{ warningMessage }}
+                </div>
+            </div>
+            <div class="col-3">
+                <a href="#" class="btn btn-warning">Renouveler</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

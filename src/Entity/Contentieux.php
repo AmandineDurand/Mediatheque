@@ -20,7 +20,7 @@ class Contentieux
     private ?\DateTimeInterface $dateCont = null;
 
     #[ORM\Column(type: 'string', enumType: TypeCont::class)]
-    private string $typeCont;
+    private TypeCont $typeCont;
 
     #[ORM\Column(nullable: true)]
     private ?int $nbDoc = null;
@@ -49,12 +49,12 @@ class Contentieux
         return $this;
     }
 
-    public function getTypecont(): ?string
+    public function getTypecont(): TypeCont
     {
         return $this->typeCont;
     }
 
-    public function setTypecont(string $typeCont): static
+    public function setTypecont(TypeCont $typeCont): static
     {
         $this->typeCont = $typeCont;
 

@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le document{% endblock %}
+
+{% block body %}
+    <h1 class="h3 mb-3 mt-3 font-weight-normal">Modifier le document</h1>
+
+    {% if document_type == 'livre' %}
+        <div class="alert alert-info">
+            Vous modifiez un livre. Le type du document ne peut pas être changé.
+        </div>
+    {% elseif document_type == 'periodique' %}
+        <div class="alert alert-info">
+            Vous modifiez un périodique. Le type du document ne peut pas être changé.
+        </div>
+    {% elseif document_type == 'sonore' %}
+        <div class="alert alert-info">
+            Vous modifiez un document sonore. Le type du document ne peut pas être changé.
+        </div>
+    {% elseif document_type == 'video' %}
+        <div class="alert alert-info">
+            Vous modifiez une vidéo. Le type du document ne peut pas être changé.
+        </div>
+    {% endif %}
+
+    {{ include('document/_formedit.html.twig') }}
+
+    <div class="row mb-3">
+        <div class="col-md-2">
+            <button type="submit" form="edit-doc-form" class="btn btn-primary">Enregistrer</button>
+        </div>
+        <div class="col-md-2">
+            <a class="btn btn-secondary" href="{{ path('app_document_index') }}">Retour</a>
+        </div>
+    </div>
+
+    {{ include('document/_delete_form.html.twig') }}
+{% endblock %}

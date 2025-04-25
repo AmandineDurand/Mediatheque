@@ -1,0 +1,402 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Document;
+use App\Entity\Utilisateur;
+use App\Entity\Livre;
+use App\Entity\Periodique;
+use App\Entity\Sonore;
+use App\Entity\Video;
+use App\Enum\FormatVid;
+use App\Enum\FormatSon;
+use App\Enum\Frequence;
+use App\Form\DocumentType;
+use App\Repository\DocumentRepository;
+use App\Repository\AuteurRepository;
+use App\Repository\CategorieRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Form\FormError;
+
+// #[Route('/document')]
+final class DocumentController extends AbstractController
+{
+    #[Route('/document', name: 'app_document_index', methods: ['GET'])]
+    public function index(DocumentRepository $documentRepository, AuteurRepository $auteurRepository, CategorieRepository $categorieRepository, Request $request): Response
+    {
+        $search = $request->query->get('search');
+        $type = $request->query->get('type');
+        $auteur = $request->query->get('auteur');
+        $categorie = $request->query->get('categorie');
+        // $documents = $documentRepository->findAll();
+
+        $auteurId = is_numeric($auteur) ? (int) $auteur : null;
+        $categorieId = is_numeric($categorie) ? (int) $categorie : null;
+
+        $documents = $documentRepository->findByFilters($search, $type, $auteurId, $categorieId);
+
+        $documentTypes = [];
+
+        foreach ($documents as $document) {
+            if ($document instanceof Livre) {
+                $documentTypes[$document->getId()] = 'livre';
+            } elseif ($document instanceof Periodique) {
+                $documentTypes[$document->getId()] = 'periodique';
+            } elseif ($document instanceof Sonore) {
+                $documentTypes[$document->getId()] = 'sonore';
+            } elseif ($document instanceof Video) {
+                $documentTypes[$document->getId()] = 'video';
+            } else {
+                $documentTypes[$document->getId()] = 'inconnu';
+            }
+        }
+
+        $uniqueTypes = array_unique(array_values($documentTypes));
+
+        return $this->render('document/index.html.twig', [
+            'documents' => $documents,
+            'document_types' => $documentTypes,
+            'types' => $uniqueTypes,  
+            'auteurs' => $auteurRepository->findAll(),
+            'categories' => $categorieRepository->findAll(),
+        ]);
+    }
+
+    #[Route('document/nouveau', name: 'app_document_new', methods: ['GET', 'POST'])]
+    public function nouveau(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $type = $request->query->get('type', 'livre');
+
+        //Crée un objet vide pour charger le formulaire une première fois
+        $document = match ($type) {
+            'livre' => new Livre(),
+            'periodique' => new Periodique(),
+            'sonore' => new Sonore(),
+            'video' => new Video(),
+        };
+
+        $form = $this->createForm(DocumentType::class, $document, [
+            'is_edit' => false,
+            'document_type' => $type,
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            $submittedType = $form->get('type')->getData();
+
+            //Si l'utilisateur a changé de type, on crée le bon objet
+            if ($submittedType !== $type) {
+                $type = $submittedType;
+                $document = match ($type) {
+                    'livre' => new Livre(),
+                    'periodique' => new Periodique(),
+                    'sonore' => new Sonore(),
+                    'video' => new Video(),
+                };
+
+                //Recrée le formulaire avec le bon objet
+                $form = $this->createForm(DocumentType::class, $document, [
+                    'is_edit' => false,
+                    'document_type' => $type,
+                ]);
+                $form->handleRequest($request);
+            }
+
+            if ($form->isValid()) {
+                $hasErrors = false;
+
+                switch ($type) {
+                    case 'livre':
+                        $isbn = $form->get('ISBN')->getData();
+                        $nbPages = $form->get('nbPages')->getData();
+
+                        if (!$isbn) {
+                            $form->get('ISBN')->addError(new FormError("Le champ ISBN est requis."));
+                            $hasErrors = true;
+                        } else {
+                            $document->setISBN($isbn);
+                        }
+                        if ($nbPages === null) {
+                            $form->get('nbPages')->addError(new FormError("Le nombre de pages est requis."));
+                            $hasErrors = true;
+                        } else {
+                            $document->setNbPages($nbPages);
+                        }
+                        break;
+
+                    case 'periodique':
+                        $frequenceString = $form->get('frequence')->getData();
+                        $numero = $form->get('numero')->getData();
+
+                        if (!$frequenceString) {
+                            $form->get('frequence')->addError(new FormError("La fréquence est requise."));
+                            $hasErrors = true;
+                        } else {
+                            $frequence = Frequence::from($frequenceString); //conversion string → enum
+                            $document->setFrequence($frequence);
+                        }
+                        if ($numero === null) {
+                            $form->get('numero')->addError(new FormError("Le numéro est requis."));
+                            $hasErrors = true;
+                        } else {
+                            $document->setNumero($numero);
+                        }
+                        break;
+
+                    case 'sonore':
+                        $dureeSon = $form->get('dureeSon')->getData();
+                        $formatSonString = $form->get('formatSon')->getData();
+
+                        if ($dureeSon === null) {
+                            $form->get('dureeSon')->addError(new FormError("La durée sonore est requise."));
+                            $hasErrors = true;
+                        } else {
+                            $document->setDureeSon($dureeSon);
+                        }
+                        if (!$formatSonString) {
+                            $form->get('formatSon')->addError(new FormError("Le format sonore est requis."));
+                            $hasErrors = true;
+                        } else {
+                            $formatSon = FormatSon::from($formatSonString);
+                            $document->setFormatSon($formatSon);
+                        }
+                        break;
+
+                    case 'video':
+                        $dureeVid = $form->get('dureeVid')->getData();
+                        $formatVidString = $form->get('formatVid')->getData();
+
+                        if ($dureeVid === null) {
+                            $form->get('dureeVid')->addError(new FormError("La durée vidéo est requise."));
+                            $hasErrors = true;
+                        } else {
+                            $document->setDureeVid($dureeVid);
+                        }
+                        if (!$formatVidString) {
+                            $form->get('formatVid')->addError(new FormError("Le format vidéo est requis."));
+                            $hasErrors = true;
+                        } else {
+                            $formatVid = FormatVid::from($formatVidString);
+                            $document->setFormatVid($formatVid);
+                        }
+                        break;
+                }
+
+                //Si des erreurs ont été ajoutées, on n'enregistre pas
+                if ($hasErrors) {
+                    return $this->render('document/new.html.twig', [
+                        'form' => $form->createView(),
+                    ]);
+                }
+
+                $document->setTitreDoc($form->get('titreDoc')->getData());
+                $document->setAnneeSortie($form->get('anneeSortie')->getData());
+                $document->setResumeDoc($form->get('resumeDoc')->getData());
+                $document->setStockDoc($form->get('stockDoc')->getData());
+                $document->setAuteur($form->get('auteur')->getData());
+                
+                //Gestion des catégories
+                $categories = $form->get('categories')->getData();
+                foreach ($categories as $categorie) {
+                    $document->addCategory($categorie);
+                }
+
+                try {
+                    $entityManager->persist($document);
+                    $entityManager->flush();
+                
+                    return $this->redirectToRoute('app_document_index', [], Response::HTTP_SEE_OTHER);
+                } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+                    switch (get_class($document)) {
+                        case \App\Entity\Livre::class:
+                            $form->get('ISBN')->addError(new FormError("Un livre avec cet ISBN existe déjà, veuillez en saisir un autre"));
+                            break;
+                
+                        case \App\Entity\Periodique::class:
+                            $form->get('numero')->addError(new FormError("Un périodique avec ce numéro existe déjà, veuillez en saisir"));
+                            break;
+                
+                        default:
+                            $form->addError(new FormError("Ce document existe déjà."));
+                            break;
+                    }
+                }
+            } 
+        }
+
+        return $this->render('document/new.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('document/{id}', name: 'app_document_show', methods: ['GET'])]
+    public function montrer(Document $document): Response
+    {
+        if ($document instanceof Livre) {
+            $type = 'livre';
+        } elseif ($document instanceof Periodique) {
+            $type = 'periodique';
+        } elseif ($document instanceof Sonore) {
+            $type = 'sonore';
+        } elseif ($document instanceof Video) {
+            $type= 'video';
+        } else {
+            $type = 'inconnu';
+        }
+
+        return $this->render('document/show.html.twig', [
+            'document' => $document,
+            'type' => $type,  
+        ]);
+    }
+
+    #[Route('document/{id}/modifier', name: 'app_document_edit', methods: ['GET', 'POST'])]
+    public function modifier(Request $request, Document $document, EntityManagerInterface $entityManager): Response
+    {
+        $originalType = null;
+        if ($document instanceof Livre) {
+            $originalType = 'livre';
+            $livreConcret = $document;
+        } elseif ($document instanceof Periodique) {
+            $originalType = 'periodique';
+            $periodiqueConcret = $document;
+        } elseif ($document instanceof Sonore) {
+            $originalType = 'sonore';
+            $sonoreConcret = $document;
+        } elseif ($document instanceof Video) {
+            $originalType = 'video';
+            $videoConcret = $document;
+        }
+
+        $form = $this->createForm(DocumentType::class, $document, [
+            'is_edit' => true,
+            'document_type' => $originalType
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            switch ($originalType) {
+                case 'livre':
+                    $livreConcret->setISBN($form->get('ISBN')->getData());
+                    $livreConcret->setNbPages($form->get('nbPages')->getData());
+                    break;
+                case 'periodique':
+                    $periodiqueConcret->setFrequence($form->get('frequence')->getData());
+                    $periodiqueConcret->setNumero($form->get('numero')->getData());
+                    break;
+                case 'sonore':
+                    $sonoreConcret->setDureeSon($form->get('dureeSon')->getData());
+                    $sonoreConcret->setFormatSon($form->get('formatSon')->getData());
+                    break;
+                case 'video':
+                    $videoConcret->setDureeVid($form->get('dureeVid')->getData());
+                    $videoConcret->setFormatVid($form->get('formatVid')->getData());
+                    break;
+            }
+
+            try {
+                $entityManager->flush();
+                return $this->redirectToRoute('app_document_index', [], Response::HTTP_SEE_OTHER);
+            } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+                switch (get_class($document)) {
+                    case \App\Entity\Livre::class:
+                        $form->get('ISBN')->addError(new FormError("Un livre avec cet ISBN existe déjà, veuillez en saisir un autre"));
+                        break;
+            
+                    case \App\Entity\Periodique::class:
+                        $form->get('numero')->addError(new FormError("Un périodique avec ce numéro existe déjà, veuillez en saisir"));
+                        break;
+            
+                    default:
+                        $form->addError(new FormError("Ce document existe déjà."));
+                        break;
+                }
+            }
+        }
+
+        return $this->render('document/edit.html.twig', [
+            'document' => $document,
+            'form' => $form,
+            'document_type' => $originalType
+        ]);
+    }
+
+    #[Route('document/{id}', name: 'app_document_delete', methods: ['POST'])]
+    public function supprimer(Request $request, Document $document, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$document->getId(), $request->getPayload()->getString('_token'))) {
+            $entityManager->remove($document);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_document_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/favoris', name: 'app_favoris')]
+    public function favoris()
+    {
+        $user = $this->getUser();
+        
+        if (!$user) {
+            // Si l'utilisateur n'est pas connecté, rediriger vers la page de connexion
+            return $this->redirectToRoute('app_login');
+        }
+        // dd(get_class($this->getUser()), method_exists($this->getUser(), 'getDocumentsAimes'));
+        
+        $documentsFavoris = $user->getDocumentsAimes(); // Récupère tous les documents aimés par l'utilisateur
+
+        $documentTypes = [];
+
+        foreach ($documentsFavoris as $document) {
+            if ($document instanceof Livre) {
+                $documentTypes[$document->getId()] = 'livre';
+            } elseif ($document instanceof Periodique) {
+                $documentTypes[$document->getId()] = 'periodique';
+            } elseif ($document instanceof Sonore) {
+                $documentTypes[$document->getId()] = 'sonore';
+            } elseif ($document instanceof Video) {
+                $documentTypes[$document->getId()] = 'video';
+            } else {
+                $documentTypes[$document->getId()] = 'inconnu';
+            }
+        }
+        
+        return $this->render('document/favoris.html.twig', [
+            'documents' => $documentsFavoris,
+            'document_types' => $documentTypes, 
+        ]);
+    }
+
+    #[Route('document/{id}/toggle-favori', name: 'app_toggle_favori')]
+    public function toggleFavori(Document $document, EntityManagerInterface $entityManager)
+    {
+        $user = $this->getUser();
+        
+        if (!$user) {
+            // Si l'utilisateur n'est pas connecté, rediriger vers la page de connexion
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Vérifier si le document est déjà aimé
+        if ($user->getDocumentsAimes()->contains($document)) {
+            // Si oui, on le retire des favoris
+            $user->removeDocumentsAime($document);
+        } else {
+            // Sinon, on l'ajoute aux favoris
+            $user->addDocumentsAime($document);
+        }
+
+        // Sauvegarder les changements en base de données
+        // $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        // Rediriger vers la même page avec un message flash
+        return $this->redirectToRoute('app_document_index', ['message' => 'Favori mis à jour']);
+    }
+}

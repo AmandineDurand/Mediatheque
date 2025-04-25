@@ -19,7 +19,7 @@ class Abonnement
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', enumType: TypeAbo::class)]
-    private string $typeAbo;
+    private TypeAbo $typeAbo;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 15, scale: 2, nullable: true)]
     private ?string $prixAbo = 'NULL';
@@ -42,17 +42,17 @@ class Abonnement
         $this->fichiers = new ArrayCollection();
     }
 
-    public function getIdabo(): ?int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getTypeabo(): ?string
+    public function getTypeabo(): TypeAbo
     {
         return $this->typeAbo;
     }
 
-    public function setTypeabo(string $typeAbo): static
+    public function setTypeabo(TypeAbo $typeAbo): static
     {
         $this->typeAbo = $typeAbo;
 

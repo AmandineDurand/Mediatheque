@@ -6,4 +6,9 @@ enum FormatSon: string
 {
     case Mp3 = 'MP3';
     case Wav = 'WAV';
+
+    public function toString(): string
+    {
+        return $this->value;
+    }
 }

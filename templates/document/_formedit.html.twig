@@ -1,0 +1,70 @@
+{{ form_start(form, {'attr': {'class': 'container mt-3', id: 'edit-doc-form'}}) }}
+    {{ form_errors(form) }}
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            {{ form_row(form.titreDoc, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_row(form.anneeSortie, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+
+    <div class="mb-3">
+        {{ form_row(form.url, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <div class="mb-3">
+        {{ form_row(form.resumeDoc, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            {{ form_row(form.stockDoc, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <div class="col-md-6">
+            {{ form_row(form.auteur, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+
+    <div class="mb-3">
+        {{ form_row(form.categories, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    {% if document_type == 'livre' %}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                {{ form_row(form.ISBN, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_row(form.nbPages, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+    {% elseif document_type == 'periodique' %}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                {{ form_row(form.frequence, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_row(form.numero, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+    {% elseif document_type == 'sonore' %}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                {{ form_row(form.dureeSon, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_row(form.formatSon, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+    {% elseif document_type == 'video' %}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                {{ form_row(form.dureeVid, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_row(form.formatVid, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+    {% endif %}
+{{ form_end(form) }}

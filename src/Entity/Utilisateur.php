@@ -13,7 +13,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Table(name: 'Utilisateur')]
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
-#[UniqueEntity(fields: ['emailUtil'], message: 'Un compte avec cet email existe déjà.')]
+#[UniqueEntity(fields: ['emailUtil'], message: 'Un compte avec cet email existe déjà. Veillez vous connecter.')]
 class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -190,6 +190,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->documentsAimes->contains($documentsAime)) {
             $this->documentsAimes->add($documentsAime);
+            $documentsAime->addUtilisateursAimant($this);
         }
 
         return $this;
@@ -197,7 +198,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeDocumentsAime(Document $documentsAime): static
     {
-        $this->documentsAimes->removeElement($documentsAime);
+        if ($this->documentsAimes->removeElement($documentsAime)){
+            $documentsAime->removeUtilisateursAimant($this);
+        }
 
         return $this;
     }

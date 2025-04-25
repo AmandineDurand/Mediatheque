@@ -11,18 +11,19 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            {% if is_granted('ROLE_INSCRIT') %}
-                {{ component.nav_item('Mentions', path('mentions'), route_name, 'mentions')}}
-            {% elseif is_granted('ROLE_USER') %}
-                {{ component.nav_item('Contact', path('contact'), route_name, 'contact')}}
-            {% endif %}
-            {# {{ component.nav_item('Artists', path('app_artist_index'), route_name, 'app_artist')}}
-            {{ component.nav_item('Releases', path('app_release_index'), route_name, 'app_release')}}
-            {{ component.nav_item('Tracks', path('app_track_index'), route_name, 'app_track')}} #}
+                {{ component.nav_item('Documents', path('app_document_index'), '', 'app_document')}}
+                {% if is_granted('ROLE_INSCRIT') %}
+                    {{ component.nav_item('Favoris', path('app_favoris'), '', 'app_favoris')}}
+                    {{ component.nav_item('Profil', path('app_profile'), '', 'app_profile')}}
+                {% endif %}
+                {% if is_granted('ROLE_BIBLIOTHECAIRE') %}
+                    {{ component.nav_item('Admin', path('app_admin_index'), '', 'app_admin_index')}}
+                {% endif %}
+                {{ component.nav_item('Contact', path('contact'), '', 'contact')}}
             </ul>
             <ul class="navbar-nav">
                 {% if is_granted('ROLE_USER') %}
-                    {{ component.nav_item(app.user.prenomUtil ~ ' ' ~ app.user.nomUtil, '#')}}
+                    {{ component.nav_item(app.user.prenomUtil ~ ' ' ~ app.user.nomUtil, path('app_profile'))}}
                     {{ component.nav_item('Déconnexion', path('deconnexion'))}}
                 {% else %}
                     {{ component.nav_item('Connexion', path('connexion'))}}

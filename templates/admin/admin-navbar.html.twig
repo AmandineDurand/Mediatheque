@@ -1,0 +1,13 @@
+{% import "component.html.twig" as component %}
+{% set route_name = app.request.attributes.get('_route') %}
+
+<nav class="overflow-x-auto" id="admin-navbar">
+    <ul class="nav nav-tabs text-nowrap flex-nowrap">
+        {{ component.nav_item('Utilisateurs', path('app_admin_user_index'), '', 'app_admin_user')}}
+        {{ component.nav_item('Auteurs', path('app_admin_auteur_index'), '', 'app_admin_auteur')}}
+        {{ component.nav_item('Catégories', path('app_admin_categorie_index'), '', 'app_admin_categorie')}}
+        {{ component.nav_item('Abonnements', path('app_admin_abonnement_index'), '', 'app_admin_abonnement')}}
+        {{ component.nav_item('Emprunts', path('app_document_index'), '', 'app_document')}}
+        {{ component.nav_item('Avis', path('app_document_index'), '', 'app_document')}}
+    </ul>
+</nav>

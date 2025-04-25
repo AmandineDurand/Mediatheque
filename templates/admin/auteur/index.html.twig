@@ -1,0 +1,40 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title_admin %}Les auteurs{% endblock %}
+
+{% block admin_content %}
+    <div class="row">
+        <div class="col">
+            <h1 class="h3 mb-3 mt-3 font-weight-normal">Liste des auteurs</h1>
+        </div>
+        <div class="col text-end mx-2">
+            <a href="{{ path('app_admin_auteur_new') }}" class="btn btn-primary mt-3">Nouveau</a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for auteur in auteurs %}
+                    <tr>
+                        <td>{{ auteur.id }}</td>
+                        <td>{{ auteur.nomAut }}</td>
+                        <td style="width: 25%;">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{{ path('app_admin_auteur_edit', {'id': auteur.id}) }}" class="btn btn-sm btn-warning mb-3">Modifier</a>
+                                {{ include('admin/auteur/_delete_form.html.twig') }}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

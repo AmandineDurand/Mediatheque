@@ -4,11 +4,13 @@ namespace App\Entity;
 
 use App\Repository\LivreRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: LivreRepository::class)]
+#[UniqueEntity(fields: ['ISBN'], message: 'Cet ISBN existe déjà, veuillez en saisir un autre.')]
 class Livre extends Document
 {
-    #[ORM\Column(length: 50, nullable: false)]
+    #[ORM\Column(length: 50, nullable: false, unique: true)]
     private string $ISBN;
 
     #[ORM\Column(nullable: false)]

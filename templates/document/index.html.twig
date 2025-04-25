@@ -1,0 +1,182 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Les documents{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col">
+            <h1 class="h3 mb-3 mt-3 font-weight-normal">Les documents</h1>
+        </div>
+        {% if is_granted('ROLE_BIBLIOTHECAIRE') %}
+            <div class="col text-end mx-2">
+                <a href="{{ path('app_document_new') }}" class="btn btn-primary mt-3">Nouveau</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="mb-3">
+        <input type="text" id="search-title" class="form-control" placeholder="Rechercher par titre..." value="{{ app.request.get('search') }}">
+    </div>
+
+    <form method="get" id="filter-form" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label for="type" class="form-label">Type</label>
+            <select name="type" id="type" class="form-select" onchange="this.form.submit()">
+                <option value="">Tous</option>
+                {% for type in types %}
+                    <option value="{{ type }}" {% if app.request.get('type') == type %}selected{% endif %}>{{ type|capitalize }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="auteur" class="form-label">Auteur</label>
+            <select name="auteur" id="auteur" class="form-select" onchange="this.form.submit()">
+                <option value="">Tous</option>
+                {% for aut in auteurs %}
+                    <option value="{{ aut.getId() }}" {% if app.request.get('auteur') == aut.getId() %}selected{% endif %}>{{ aut.nomAut }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="categorie" class="form-label">Catégorie</label>
+            <select name="categorie" id="categorie" class="form-select" onchange="this.form.submit()">
+                <option value="">Toutes</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.getId() }}" {% if app.request.get('categorie') == cat.getId() %}selected{% endif %}>{{ cat.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <div id="documents-container">
+        <div class="row">
+            {% for document in documents %}
+                <div class="col-md-3 mb-4">
+                    <div class="card" style="width: 18rem;">
+                        <!-- Image en haut de la carte -->
+                        <img src="{{ document.url }}" class="card-img-top" alt="Image de document">
+
+                        <div class="card-body">
+                            <!-- Titre et Année de Sortie -->
+                            <h5 class="card-title">{{ document.titreDoc }}</h5>
+                            <p class="card-text mb-1">Sorti en {{ document.anneeSortie ? document.anneeSortie|date('Y') : '' }}</p>
+                            {% if document.auteur == NULL %}
+                                <p class="card-text mb-2">Auteur inconnu</p>
+                            {% else %}
+                                <p class="card-text mb-2">De {{ document.auteur.nomAut }}</p>
+                            {% endif %}
+
+                            <!-- Auteur et Catégories avec fond bleu transparent -->
+                            {# <p class="card-text bg-primary text-white rounded p-2">
+                                {{ document.categories|map(categorie => categorie.nomCat)|join(', ') }}
+                            </p> #}
+
+                            {% if document.categories is not empty %}
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% for categorie in document.categories %}
+                                        <a class="btn btn-primary btn-sm mb-1">
+                                            {{ categorie.nom }}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <!-- Résumé -->
+                            <p class="card-text">{{ document.resumeDoc|length > 50 ? document.resumeDoc|slice(0, 50) ~ '…' : document.resumeDoc }}</p>
+
+                            <!-- Type de document -->
+                            <p class="card-text mb-1"><strong>Type : </strong>{{ document_types[document.id] }}</p>
+
+                            <!-- Affichage des informations spécifiques au type de document -->
+                            {% if document_types[document.id]== 'livre' %}
+                                <p class="card-text mb-1"><strong>ISBN : </strong> {{ document.ISBN }}</p>
+                                <p class="card-text"><strong>Nombre de Pages : </strong> {{ document.nbPages }}</p>
+                            {% elseif document_types[document.id] == 'periodique' %}
+                                <p class="card-text mb-1"><strong>Fréquence : </strong> {{ document.frequence.toString() }}</p>
+                                <p class="card-text"><strong>Numéro : </strong> {{ document.numero }}</p>
+                            {% elseif document_types[document.id] == 'sonore' %}
+                                <p class="card-text mb-1"><strong>Durée : </strong> {{ document.dureeSon }} min</p>
+                                <p class="card-text"><strong>Format : </strong> {{ document.formatSon.toString() }}</p>
+                            {% elseif document_types[document.id] == 'video' %}
+                                <p class="card-text mb-1"><strong>Durée : </strong> {{ document.dureeVid }} min</p>
+                                <p class="card-text"><strong>Format : </strong> {{ document.formatVid.toString() }}</p>
+                            {% endif %}
+
+                            {% if is_granted('ROLE_ADHERENT') %}
+                                {% if document.stockDoc <=3 and document.stockDoc >1 %}
+                                    <div class="alert alert-info py-2">
+                                        Plus que {{ document.stockDoc }} exemplaires
+                                    </div>
+                                {% elseif document.stockDoc == 1 %}
+                                    <div class="alert alert-info py-2">
+                                        Plus que {{ document.stockDoc }} exemplaire
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <a href="{{ path('app_document_show', {'id': document.id}) }}" class="btn btn-info btn-sm">Voir</a>
+                                {% if is_granted('ROLE_INSCRIT') %}
+                                    {% if app.user.getDocumentsAimes().contains(document) %}
+                                        <a href="{{ path('app_toggle_favori', {'id': document.id}) }}" class="btn btn-outline-success btn-sm">Ne plus aimer</a>
+                                    {% else %}
+                                        <a href="{{ path('app_toggle_favori', {'id': document.id}) }}" class="btn btn-success btn-sm">Aimer</a>
+                                    {% endif %}
+                                {% endif %}
+                                {% if is_granted('ROLE_ADHERENT') %}
+                                    {% if document.stockDoc == 0 %}
+                                        <a class="btn btn-light btn-sm">Indisponible</a>
+                                    {% else %}
+                                        <a href="{{ path('app_document_edit', {'id': document.id}) }}" class="btn btn-primary btn-sm">Emprunter</a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            {% if is_granted('ROLE_BIBLIOTHECAIRE') %}
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ path('app_document_edit', {'id': document.id}) }}" class="btn btn-warning btn-sm mb-3">Modifier</a>
+                                    {{ include('document/_delete_form.html.twig') }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-warning">Aucun document correspondant</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% block javascript %}
+        <script>
+            document.getElementById('search-title').addEventListener('keyup', function () {
+                const searchValue = this.value;
+
+                // On récupère les filtres déjà présents dans l’URL
+                const params = new URLSearchParams(window.location.search);
+
+                if (searchValue.trim() !== '') {
+                    params.set('search', searchValue);
+                } else {
+                    params.delete('search');
+                }
+
+                fetch(`?${params.toString()}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // Remplace juste la partie contenant les cartes
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newCards = doc.querySelector('#documents-container');
+                    document.querySelector('#documents-container').innerHTML = newCards.innerHTML;
+                });
+            });
+        </script>
+    {% endblock %}
+{% endblock %}

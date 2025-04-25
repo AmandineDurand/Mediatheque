@@ -1,0 +1,18 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title_admin %}Nouvel abonnement{% endblock %}
+
+{% block admin_content %}
+    <h1 class="h3 mb-3 mt-3 font-weight-normal">Créer un abonnement</h1>
+
+    {{ include('admin/abonnement/_form.html.twig') }}
+
+    <div class="row my-3">
+        <div class="col-md-2">
+            <button type="submit" form="new-abo-form" class="btn btn-primary">Créer</button>
+        </div>
+        <div class="col-md-2">
+            <a class="btn btn-secondary" href="{{ path('app_admin_abonnement_index') }}">Retour</a>
+        </div>
+    </div>
+{% endblock %}

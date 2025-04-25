@@ -1,0 +1,54 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title_admin %}Les abonnements{% endblock %}
+
+{% block admin_content %}
+    <div class="row">
+        <div class="col">
+            <h1 class="h3 mb-3 mt-3 font-weight-normal">Liste des abonements</h1>
+        </div>
+        <div class="col text-end mx-2">
+            <a href="{{ path('app_admin_abonnement_new') }}" class="btn btn-primary mt-3">Nouveau</a>
+        </div>
+    </div>
+    
+    {% if abonnements is not empty %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Prix</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for abonnement in abonnements %}
+                        <tr>
+                            <td>{{ abonnement.id }}</td>
+                            <td>{{ abonnement.typeAbo.toString() }}</td>
+                            <td>
+                                {% if abonnement.prixAbo == 0.00 or abonnement.prixAbo == NULL %}
+                                    Gratuit
+                                {% else %}
+                                    {{ abonnement.prixAbo }}
+                                {% endif %}
+                            </td>
+                            <td style="width: 25%;">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a href="{{ path('app_admin_abonnement_edit', {'id': abonnement.id}) }}" class="btn btn-sm btn-warning mb-3">Modifier</a>
+                                    {# {{ include('admin/auteur/_delete_form.html.twig') }} #}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-warning">Aucun abonnement</div>
+        </div>
+    {% endif %}
+{% endblock %}

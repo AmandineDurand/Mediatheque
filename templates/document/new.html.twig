@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau document{% endblock %}
+
+{% block body %}
+
+    {{ include('document/_form.html.twig') }}
+
+    <div class="row mb-3">
+        <div class="col-md-2">
+            <button type="submit" form="new-doc-form" class="btn btn-primary">Enregistrer</button>
+        </div>
+        <div class="col-md-2">
+            <a class="btn btn-secondary" href="{{ path('app_document_index') }}">Retour</a>
+        </div>
+    </div>
+
+    {% block javascripts %}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const typeField = document.querySelector('#document_type');
+                const subforms = document.querySelectorAll('.subform');
+
+                function updateSubformDisplay() {
+                    subforms.forEach(div => div.style.display = 'none');
+                    const selectedType = typeField.value;
+                    const currentSubform = document.querySelector(`#subform-${selectedType}`);
+                    if (currentSubform) {
+                        currentSubform.style.display = 'block';
+                    }
+                }
+
+                typeField.addEventListener('change', updateSubformDisplay);
+                updateSubformDisplay(); // pour afficher au chargement
+            });
+        </script>
+    {% endblock %}
+{% endblock %}

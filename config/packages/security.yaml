@@ -60,11 +60,11 @@ security:
         - { path: ^/accueil, roles: PUBLIC_ACCESS }
         - { path: ^/contact, roles: PUBLIC_ACCESS }
         - { path: ^/mentions, roles: PUBLIC_ACCESS }
-        # - { path: ^/documents, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/documents, roles: PUBLIC_ACCESS }
 
         # Accès pour utilisateurs authentifiés (ROLE_USER et plus)
-        # - { path: ^/profil, roles: ROLE_USER }
-        # - { path: ^/favoris, roles: ROLE_USER }
+        - { path: ^/profil, roles: ROLE_INSCRIT }
+        - { path: ^/favoris, roles: ROLE_INSCRIT }
 
         # Accès pour les adhérents et plus
         # - { path: ^/commandes, roles: ROLE_ADHERENT }

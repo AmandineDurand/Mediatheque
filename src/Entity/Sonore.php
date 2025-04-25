@@ -13,7 +13,7 @@ class Sonore extends Document
     private int $dureeSon;
 
     #[ORM\Column(type: 'string', enumType: FormatSon::class)]
-    private string $formatSon;
+    private FormatSon $formatSon;
 
     public function getDureeSon(): string
     {
@@ -26,12 +26,12 @@ class Sonore extends Document
         return $this;
     }
 
-    public function getFormatSon(): int
+    public function getFormatSon(): FormatSon
     {
         return $this->formatSon;
     }
 
-    public function setFormatSon(int $formatSon): static
+    public function setFormatSon(FormatSon $formatSon): static
     {
         $this->formatSon = $formatSon;
         return $this;

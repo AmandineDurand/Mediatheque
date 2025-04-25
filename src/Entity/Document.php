@@ -25,6 +25,9 @@ class Document
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $url;
+
     // #[ORM\Column(type: Types::STRING, nullable: false)]
     // private ?string $typeDoc = null;
 
@@ -62,7 +65,7 @@ class Document
     private Collection $commandes;
     
     #[ORM\ManyToOne(targetEntity:Auteur::class, inversedBy: 'documents')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Auteur $auteur = null;
 
     /**
@@ -89,7 +92,7 @@ class Document
         $this->categories = new ArrayCollection();
     }
 
-    public function getIddoc(): ?int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -114,6 +117,18 @@ class Document
     public function setTitredoc(string $titreDoc): static
     {
         $this->titreDoc = $titreDoc;
+
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): static
+    {
+        $this->url = $url;
 
         return $this;
     }
@@ -294,7 +309,7 @@ class Document
         return $this->categories;
     }
 
-    public function addCategories(Commande $categorie): static
+    public function addCategory(Categorie $categorie): static
     {
         if (!$this->categories->contains($categorie)) {
             $this->categories->add($categorie);
@@ -304,7 +319,7 @@ class Document
         return $this;
     }
 
-    public function removeCategories(Commande $categorie): static
+    public function removeCategory(Categorie $categorie): static
     {
         if ($this->categories->removeElement($categorie)) {
             $categorie->removeDocument($this);

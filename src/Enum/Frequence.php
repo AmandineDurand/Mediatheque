@@ -8,4 +8,9 @@ enum Frequence: string
     case Journalier = 'journalier';
     case Annuel = 'annuel';
     case Semestriel = 'semestriel';
+
+    public function toString(): string
+    {
+        return $this->value;
+    }
 }

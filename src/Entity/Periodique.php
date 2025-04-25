@@ -5,22 +5,24 @@ namespace App\Entity;
 use App\Repository\PeriodiqueRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Enum\Frequence;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: PeriodiqueRepository::class)]
+#[UniqueEntity(fields: ['numero'], message: 'Ce numéro existe déjà, veuillez en saisir un autre.')]
 class Periodique extends Document
 {
     #[ORM\Column(type: 'string', enumType: Frequence::class)]
-    private string $frequence;
+    private Frequence $frequence;
 
-    #[ORM\Column]
+    #[ORM\Column(unique: true)]
     private int $numero;
 
-    public function getFrequence(): string
+    public function getFrequence(): Frequence
     {
         return $this->frequence;
     }
 
-    public function setFrequence(string $frequence): static
+    public function setFrequence(Frequence $frequence): static
     {
         $this->frequence = $frequence;
         return $this;

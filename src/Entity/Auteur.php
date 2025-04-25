@@ -7,9 +7,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Table(name: 'Auteur')]
 #[ORM\Entity(repositoryClass: AuteurRepository::class)]
+#[UniqueEntity(fields: ['nomAut'], message: 'Cet auteur existe déjà, veuillez en saisir un autre.')]
 class Auteur
 {
     #[ORM\Id]
@@ -17,7 +19,7 @@ class Auteur
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50, nullable: false)]
+    #[ORM\Column(length: 50, nullable: false, unique: true)]
     private string $nomAut;
 
     /**
@@ -31,7 +33,7 @@ class Auteur
         $this->documents = new ArrayCollection();
     }
 
-    public function getIdaut(): ?int
+    public function getId(): ?int
     {
         return $this->id;
     }

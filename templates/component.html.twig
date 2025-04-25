@@ -26,18 +26,18 @@
     <a href="{{ href }}" class="btn btn-{{ variant }} btn-{{ size }} {{ margin }}">{{ label }}</a>
 {% endmacro %}
 
-{% macro nav_item(label, href, current_route, namespace) %}
-    {% set is_active = current_route starts with namespace %}
+{% macro nav_item(label, href, icon, check_path) %}
+    {% set is_active = _context.app.request.attributes.get('_route') starts with check_path %}
+    {% set classes = ['nav-link'] %}
+
+    {% if is_active %}
+        {% set classes = classes|merge(['active']) %}
+    {% endif %}
+    
     <li class="nav-item">
-        <a 
-            {% if is_active %}
-                class="nav-link active"
-            {% else %}
-                class="nav-link"
-            {% endif %}   
-            href="{{ href }}"
-        >
-            {{ label }}
+        <a href="{{ href }}" class="{{ classes|join(' ') }}"{% if is_active %} aria-current="page"{% endif %}>
+        {{ icon }}
+        {{ label }}
         </a>
     </li>
 {% endmacro %}

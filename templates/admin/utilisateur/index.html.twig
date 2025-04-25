@@ -1,0 +1,49 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title_admin %}Les utilisateurs{% endblock %}
+
+{% block admin_content %}
+    <h1 class="h3 mb-3 mt-3 font-weight-normal">Liste des utilisateurs</h1>
+        
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Prénom</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Rôle</th>
+                    <th scope="col">Nombre de contentieux</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for util in utilisateurs %}
+                    <tr>
+                        <td>{{ util.id }}</td>
+                        <td>{{ util.nomUtil }}</td>
+                        <td>{{ util.prenomUtil }}</td>
+                        <td>{{ util.emailUtil }}</td>
+                        <td>
+                            {% if 'ROLE_BIBLIOTHECAIRE' in util.roles %}
+                                bibliothécaire
+                            {% elseif 'ROLE_ADHERENT' in util.roles %}
+                                adhérent(e)
+                            {% elseif 'ROLE_INSCRIT' in util.roles %}
+                                inscrit(e)
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if util.nbContentieux == 0 or util.nbContentieux == NULL %}
+                                Aucun
+                            {% else %}
+                                {{ util.emailUtil }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

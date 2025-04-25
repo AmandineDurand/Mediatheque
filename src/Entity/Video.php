@@ -13,7 +13,7 @@ class Video extends Document
     private int $dureeVid;
 
     #[ORM\Column(type: 'string', enumType: FormatVid::class)]
-    private string $formatVid;
+    private FormatVid $formatVid;
 
     public function getDureeVid(): string
     {
@@ -26,12 +26,12 @@ class Video extends Document
         return $this;
     }
 
-    public function getFormatVid(): int
+    public function getFormatVid(): FormatVid
     {
         return $this->formatVid;
     }
 
-    public function setFormatVid(int $formatVid): static
+    public function setFormatVid(FormatVid $formatVid): static
     {
         $this->formatVid = $formatVid;
         return $this;

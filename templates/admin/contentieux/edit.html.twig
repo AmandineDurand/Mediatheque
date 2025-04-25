@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Contentieux{% endblock %}
+
+{% block body %}
+    <h1>Edit Contentieux</h1>
+
+    {{ include('contentieux/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_contentieux_index') }}">back to list</a>
+
+    {{ include('contentieux/_delete_form.html.twig') }}
+{% endblock %}

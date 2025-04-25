@@ -1,0 +1,16 @@
+{{ form_start(form, {'attr': {'id': 'edit-user-form'}}) }}
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        {{ form_row(form.nomUtil, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.prenomUtil, {'attr': {'class': 'form-control'}}) }}
+    </div>
+</div>
+
+<div class="mb-3">
+    {{ form_row(form.emailUtil, {'attr': {'class': 'form-control'}}) }}
+</div>
+
+{{ form_end(form) }}
