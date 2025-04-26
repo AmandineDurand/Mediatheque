@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Document;
-use App\Entity\Utilisateur;
+use App\Entity\Commande;
 use App\Entity\Livre;
 use App\Entity\Periodique;
 use App\Entity\Sonore;
@@ -26,7 +26,7 @@ use Symfony\Component\Form\FormError;
 final class DocumentController extends AbstractController
 {
     #[Route('/document', name: 'app_document_index', methods: ['GET'])]
-    public function index(DocumentRepository $documentRepository, AuteurRepository $auteurRepository, CategorieRepository $categorieRepository, Request $request): Response
+    public function index(DocumentRepository $documentRepository, AuteurRepository $auteurRepository, CategorieRepository $categorieRepository, EntityManagerInterface $em, Request $request): Response
     {
         $search = $request->query->get('search');
         $type = $request->query->get('type');
@@ -38,6 +38,13 @@ final class DocumentController extends AbstractController
         $categorieId = is_numeric($categorie) ? (int) $categorie : null;
 
         $documents = $documentRepository->findByFilters($search, $type, $auteurId, $categorieId);
+
+        $user = $this->getUser();
+
+        $panier = $em->getRepository(Commande::class)->findOneBy([
+            'utilisateur' => $user,
+            'dateCom' => null
+        ]);
 
         $documentTypes = [];
 
@@ -63,6 +70,7 @@ final class DocumentController extends AbstractController
             'types' => $uniqueTypes,  
             'auteurs' => $auteurRepository->findAll(),
             'categories' => $categorieRepository->findAll(),
+            'panier' => $panier,
         ]);
     }
 
@@ -234,7 +242,7 @@ final class DocumentController extends AbstractController
     }
 
     #[Route('document/{id}', name: 'app_document_show', methods: ['GET'])]
-    public function montrer(Document $document): Response
+    public function montrer(Document $document, EntityManagerInterface $em): Response
     {
         if ($document instanceof Livre) {
             $type = 'livre';
@@ -248,9 +256,17 @@ final class DocumentController extends AbstractController
             $type = 'inconnu';
         }
 
+        $user = $this->getUser();
+
+        $panier = $em->getRepository(Commande::class)->findOneBy([
+            'utilisateur' => $user,
+            'dateCom' => null
+        ]);
+
         return $this->render('document/show.html.twig', [
             'document' => $document,
-            'type' => $type,  
+            'type' => $type, 
+            'panier' => $panier 
         ]);
     }
 
@@ -338,7 +354,7 @@ final class DocumentController extends AbstractController
     }
 
     #[Route('/favoris', name: 'app_favoris')]
-    public function favoris()
+    public function favoris(EntityManagerInterface $em)
     {
         $user = $this->getUser();
         
@@ -365,10 +381,16 @@ final class DocumentController extends AbstractController
                 $documentTypes[$document->getId()] = 'inconnu';
             }
         }
+
+        $panier = $em->getRepository(Commande::class)->findOneBy([
+            'utilisateur' => $user,
+            'dateCom' => null
+        ]);
         
         return $this->render('document/favoris.html.twig', [
             'documents' => $documentsFavoris,
             'document_types' => $documentTypes, 
+            'panier' => $panier
         ]);
     }
 
@@ -398,5 +420,54 @@ final class DocumentController extends AbstractController
 
         // Rediriger vers la même page avec un message flash
         return $this->redirectToRoute('app_document_index', ['message' => 'Favori mis à jour']);
+    }
+
+    #[Route('/document/{id}/emprunter', name: 'document_emprunter')]
+    public function emprunter(Document $document, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté pour emprunter un document.');
+        }
+
+        // Chercher une commande "panier" existante
+        $commande = $em->getRepository(Commande::class)->findOneBy([
+            'utilisateur' => $user,
+            'dateCom' => null,
+        ]);
+
+        if (!$commande) {
+            // Pas de commande "panier" existante, on en crée une
+            $commande = new Commande();
+            $commande->setUtilisateur($user);
+            $em->persist($commande);
+        }
+
+        if (!$commande->getDocuments()->contains($document)) {
+            $commande->addDocument($document);
+        }
+
+        $em->flush();
+        $this->addFlash('success', 'Document ajouté à votre panier.');
+        return $this->redirectToRoute('app_document_index');
+    }
+
+    #[Route('/document/{id}/enlever', name: 'enlever_du_panier')]
+    public function enleverDuPanier(Document $document, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+        $commande = $em->getRepository(Commande::class)->findOneBy([
+            'utilisateur' => $user,
+            'dateCom' => null
+        ]);
+
+        if ($commande && $commande->getDocuments()->contains($document)) {
+            $commande->removeDocument($document);
+        }
+
+        $em->flush();
+
+        return $this->redirectToRoute('app_document_index'); // ou où tu veux
     }
 }

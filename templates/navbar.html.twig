@@ -16,6 +16,10 @@
                     {{ component.nav_item('Favoris', path('app_favoris'), '', 'app_favoris')}}
                     {{ component.nav_item('Profil', path('app_profile'), '', 'app_profile')}}
                 {% endif %}
+                {% if is_granted('ROLE_ADHERENT') %}
+                    {{ component.nav_item('Panier', path('voir_panier'), '', 'voir_panier')}}
+                    {{ component.nav_item('Commandes', path('liste_commandes'), '', 'liste_commandes')}}
+                {% endif %}
                 {% if is_granted('ROLE_BIBLIOTHECAIRE') %}
                     {{ component.nav_item('Admin', path('app_admin_index'), '', 'app_admin_index')}}
                 {% endif %}

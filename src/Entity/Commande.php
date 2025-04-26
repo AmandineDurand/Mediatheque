@@ -52,7 +52,7 @@ class Commande
         $this->contentieux = new ArrayCollection();
     }
 
-    public function getIdcom(): ?int
+    public function getId(): ?int
     {
         return $this->id;
     }

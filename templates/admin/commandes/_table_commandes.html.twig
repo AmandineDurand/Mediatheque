@@ -1,0 +1,67 @@
+{% set maintenant = "now"|date_modify('0 seconds') %}
+{% set recherche = app.request.get('q') %}
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Utilisateur</th>
+            <th>Date commande</th>
+            <th>Date retrait</th>
+            <th>Date rendu</th>
+            <th>Nb Documents</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for commande in commandes %}
+        {% set afficher = false %}
+        {# {% set recherche = app.request.get('q') %} #}
+        {# {% set filtre = app.request.get('filtre') %} #}
+
+        {% set matchRecherche = recherche is empty or
+            commande.utilisateur.prenomUtil|lower matches ('/.*' ~ recherche|lower ~ '.*/') or
+            commande.utilisateur.nomUtil|lower matches ('/.*' ~ recherche|lower ~ '.*/') %}
+
+        {# {% set matchStatut = filtre is empty or filtre == filtre %} #}
+
+        {% if matchRecherche %}
+            {% if filtre == 'en_attente_validation' and commande.dateCom is null %}
+                {% set afficher = true %}
+            {% elseif filtre == 'en_attente_retrait' and commande.dateCom is not null and commande.dateRetrait is null and commande.dateCom|date_modify('+7 days') > maintenant %}
+                {% set afficher = true %}
+            {% elseif filtre == 'annulees' and commande.dateCom is not null and commande.dateRetrait is null and commande.dateCom|date_modify('+7 days') < maintenant %}
+                {% set afficher = true %}
+            {% elseif filtre == 'en_cours' and commande.dateRetrait is not null and commande.dateRendu is null and commande.dateRetrait|date_modify('+1 month') > maintenant %}
+                {% set afficher = true %}
+            {% elseif filtre == 'expirees' and commande.dateRetrait is not null and commande.dateRendu is null and commande.dateRetrait|date_modify('+1 month') < maintenant %}
+                {% set afficher = true %}
+            {% elseif filtre == 'terminees' and commande.dateRendu is not null and commande.dateRendu < maintenant %}
+                {% set afficher = true %}
+            {% endif %}
+        {% endif %}
+
+        {% if afficher %}
+            <tr>
+                <td>{{ commande.id }}</td>
+                <td>{{ commande.utilisateur.prenomUtil }} {{ commande.utilisateur.nomUtil }}</td>
+                <td>{{ commande.dateCom ? commande.dateCom|date('d/m/Y') : 'Aucune' }}</td>
+                <td>{{ commande.dateRetrait ? commande.dateRetrait|date('d/m/Y') : 'Aucune' }}</td>
+                <td>{{ commande.dateRendu ? commande.dateRendu|date('d/m/Y') : 'Aucune' }}</td>
+                <td>{{ commande.documents|length }}</td>
+                <td>
+                    <a href="{{ path('admin_commandes_show', {'id': commande.id}) }}" class="btn btn-primary btn-sm">Voir</a>
+                    
+                    {% if filtre == 'en_attente_retrait' %}
+                        <a href="{{ path('admin_commandes_valider_retrait', {'id': commande.id}) }}" class="btn btn-success btn-sm">Valider Retrait</a>
+                    {% endif %}
+                    
+                    {% if filtre == 'en_cours' %}
+                        <a href="{{ path('admin_commandes_valider_rendu', {'id': commande.id}) }}" class="btn btn-warning btn-sm">Valider Rendu</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+    </tbody>
+</table>

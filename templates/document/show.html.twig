@@ -21,7 +21,11 @@
                     {% if document.stockDoc == 0 %}
                         <a class="btn btn-light btn-sm">Indisponible</a>
                     {% else %}
-                        <a href="{{ path('app_document_edit', {'id': document.id}) }}" class="btn btn-primary btn-sm">Emprunter</a>
+                        {% if panier and document in panier.documents %}
+                            <a href="{{ path('enlever_du_panier', {'id': document.id}) }}" class="btn btn-outline-primary btn-sm">Enlever du panier</a>
+                        {% else %}
+                            <a href="{{ path('document_emprunter', {'id': document.id}) }}" class="btn btn-primary btn-sm">Emprunter</a>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
             </div>
@@ -47,9 +51,9 @@
                 <li class="list-group-item"><strong>Année de sortie : </strong> {{ document.anneeSortie ? document.anneeSortie|date('Y') : 'N/A' }}</li>
                 <li class="list-group-item"><strong>Auteur : </strong>
                     {% if document.auteur == NULL %}
-                        <p class="card-text mb-2">Auteur inconnu</p>
+                        inconnu
                     {% else %}
-                        <p class="card-text mb-2">De {{ document.auteur.nomAut }}</p>
+                        {{ document.auteur.nomAut }}
                     {% endif %}
                 </li>
                 <li class="list-group-item">
@@ -57,7 +61,7 @@
                         <div class="d-flex flex-wrap gap-2">
                             {% for categorie in document.categories %}
                                 <a class="btn btn-primary btn-sm mb-1">
-                                    {{ categorie.nomCat }}
+                                    {{ categorie.nom }}
                                 </a>
                             {% endfor %}
                         </div>

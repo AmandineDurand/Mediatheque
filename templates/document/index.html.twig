@@ -130,7 +130,11 @@
                                     {% if document.stockDoc == 0 %}
                                         <a class="btn btn-light btn-sm">Indisponible</a>
                                     {% else %}
-                                        <a href="{{ path('app_document_edit', {'id': document.id}) }}" class="btn btn-primary btn-sm">Emprunter</a>
+                                        {% if panier and document in panier.documents %}
+                                            <a href="{{ path('enlever_du_panier', {'id': document.id}) }}" class="btn btn-outline-primary btn-sm">Enlever du panier</a>
+                                        {% else %}
+                                            <a href="{{ path('document_emprunter', {'id': document.id}) }}" class="btn btn-primary btn-sm">Emprunter</a>
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
                             </div>

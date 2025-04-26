@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon panier{% endblock %}
+
+{% block body %}
+    <div class="container mt-3">
+        <h1 class="h3 mb-3 mt-3 font-weight-normal">Mon panier</h1>
+        
+        {% if commande %}
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <tbody>
+                        {% for document in commande.documents %}
+                            <tr>
+                                <td style="width: 100px;">
+                                    <img src="{{ document.url }}" alt="Image" class="img-fluid rounded" style="max-height: 80px;">
+                                </td>
+                                <td>{{ document.titreDoc }}</td>
+                                {# <td>{{ document_types[document.id] }}</td> #}
+                                <td>{{ document.resumeDoc|length > 50 ? document.resumeDoc|slice(0, 50) ~ '…' : document.resumeDoc }}</td>
+                                <td style="width: 25%;">
+                                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                        <a href="{{ path('app_document_show', {'id': document.id}) }}" class="btn btn-sm btn-info">Voir</a>
+                                        <a href="{{ path('enlever_du_panier', {'id': document.id}) }}" class="btn btn-outline-primary btn-sm">Enlever du panier</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4 text-center">
+                <form method="post" action="{{ path('valider_panier') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('valider_panier') }}">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        Valider le panier
+                    </button>
+                </form>
+            </div>
+        {% else %}
+            <div class="alert alert-warning mt-4">Votre panier est vide</div>
+        {% endif %}
+    </div>
+{% endblock %}

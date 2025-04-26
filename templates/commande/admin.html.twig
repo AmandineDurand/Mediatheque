@@ -1,0 +1,148 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title_admin %}Les commandes{% endblock %}
+
+{% block admin_content %}
+    <style>
+        .accordion-button:not(.collapsed) {
+            background-color: white !important;
+            color: black;
+            box-shadow: none;
+        }
+
+        .accordion-button:focus {
+            box-shadow: none;
+            outline: none;
+        }
+    </style>
+    <h1 class="h3 mb-3 mt-3 font-weight-normal">📦 Gestion des commandes</h1>
+
+    {% set maintenant = "now"|date_modify('0 seconds') %}
+
+    <form method="get" class="row g-3 mb-5">
+        <div class="col-md-4">
+            <input type="text" name="q" class="form-control" placeholder="Rechercher par nom ou prénom..." value="{{ app.request.get('q') }}">
+        </div>
+        <div class="col-md-4">
+            <select name="filtre" class="form-select">
+                <option value="">-- Tous les statuts --</option>
+                <option value="en_attente_validation" {% if app.request.get('filtre') == 'en_attente_validation' %}selected{% endif %}>En attente de validation</option>
+                <option value="en_attente_retrait" {% if app.request.get('filtre') == 'en_attente_retrait' %}selected{% endif %}>En attente de retrait</option>
+                <option value="annulees" {% if app.request.get('filtre') == 'annulees' %}selected{% endif %}>Annulées</option>
+                <option value="en_cours" {% if app.request.get('filtre') == 'en_cours' %}selected{% endif %}>En cours</option>
+                <option value="expirees" {% if app.request.get('filtre') == 'expirees' %}selected{% endif %}>Expirées</option>
+                <option value="terminees" {% if app.request.get('filtre') == 'terminees' %}selected{% endif %}>Terminées</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary w-100">🔎 Rechercher</button>
+        </div>
+    </form>
+
+    <div class="accordion mb-3" id="commandesAccordion">
+
+        {# Section : En attente de validation #}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingValidation">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#validation">
+                    En attente de validation
+                </button>
+            </h2>
+            <div id="validation" class="accordion-collapse collapse" data-bs-parent="#commandesAccordion">
+                <div class="accordion-body">
+                    {{ include('admin/commandes/_table_commandes.html.twig', {
+                        'commandes': commandes,
+                        'filtre': 'en_attente_validation'
+                    }) }}
+                </div>
+            </div>
+        </div>
+
+        {# Section : En attente de retrait #}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingRetrait">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#retrait">
+                    En attente de retrait
+                </button>
+            </h2>
+            <div id="retrait" class="accordion-collapse collapse" data-bs-parent="#commandesAccordion">
+                <div class="accordion-body">
+                    {{ include('admin/commandes/_table_commandes.html.twig', {
+                        'commandes': commandes,
+                        'filtre': 'en_attente_retrait'
+                    }) }}
+                </div>
+            </div>
+        </div>
+
+        {# Section : Commandes annulées #}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAnnulees">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#annulees">
+                    Commandes annulées
+                </button>
+            </h2>
+            <div id="annulees" class="accordion-collapse collapse" data-bs-parent="#commandesAccordion">
+                <div class="accordion-body">
+                    {{ include('admin/commandes/_table_commandes.html.twig', {
+                        'commandes': commandes,
+                        'filtre': 'annulees'
+                    }) }}
+                </div>
+            </div>
+        </div>
+
+        {# Section : En cours #}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingEnCours">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#encours">
+                    Emprunts en cours
+                </button>
+            </h2>
+            <div id="encours" class="accordion-collapse collapse" data-bs-parent="#commandesAccordion">
+                <div class="accordion-body">
+                    {{ include('admin/commandes/_table_commandes.html.twig', {
+                        'commandes': commandes,
+                        'filtre': 'en_cours'
+                    }) }}
+                </div>
+            </div>
+        </div>
+
+        {# Section : Expirées #}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingExpirees">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#expirees">
+                    Emprunts expirés
+                </button>
+            </h2>
+            <div id="expirees" class="accordion-collapse collapse" data-bs-parent="#commandesAccordion">
+                <div class="accordion-body">
+                    {{ include('admin/commandes/_table_commandes.html.twig', {
+                        'commandes': commandes,
+                        'filtre': 'expirees'
+                    }) }}
+                </div>
+            </div>
+        </div>
+
+        {# Section : Terminées #}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTerminees">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#terminees">
+                    Commandes terminées
+                </button>
+            </h2>
+            <div id="terminees" class="accordion-collapse collapse" data-bs-parent="#commandesAccordion">
+                <div class="accordion-body">
+                    {{ include('admin/commandes/_table_commandes.html.twig', {
+                        'commandes': commandes,
+                        'filtre': 'terminees'
+                    }) }}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

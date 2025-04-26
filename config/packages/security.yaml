@@ -29,7 +29,6 @@ security:
             logout:
                 path: deconnexion
                 target: connexion
-            # custom_authenticator: App\Security\AppAuthentificateurAuthenticator
 
             remember_me:
                 secret: '%kernel.secret%'
@@ -67,10 +66,11 @@ security:
         - { path: ^/favoris, roles: ROLE_INSCRIT }
 
         # Accès pour les adhérents et plus
-        # - { path: ^/commandes, roles: ROLE_ADHERENT }
+        - { path: ^/mes-commandes, roles: ROLE_ADHERENT }
+        - { path: ^/panier, roles: ROLE_ADHERENT }
 
         # Accès pour les bibliothécaires et plus
-        # - { path: ^/admin, roles: ROLE_BIBLIOTHECAIRE }
+        - { path: ^/admin, roles: ROLE_BIBLIOTHECAIRE }
 
 when@test:
     security:

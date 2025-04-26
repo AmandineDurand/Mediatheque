@@ -1,0 +1,186 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes commandes{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <h1 class="mb-4">Mes Commandes</h1>
+
+        {% set maintenant = "now"|date_modify('0 seconds') %}
+
+        {# ===== En attente de validation ===== #}
+        <h2 class="mt-5">En attente de validation</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Date commande</th>
+                    <th>Date retrait</th>
+                    <th>Date rendu</th>
+                    <th>Nb Documents</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for commande in commandes %}
+                {% if commande.dateCom is null %}
+                    <tr>
+                        <td>{{ commande.id }}</td>
+                        <td>Aucune</td>
+                        <td>Aucune</td>
+                        <td>Aucune</td>
+                        <td>{{ commande.documents|length }}</td>
+                        <td><a href="{{ path('app_commande_show', {'id': commande.id}) }}" class="btn btn-primary btn-sm">Voir</a></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {# ===== En attente de retrait ===== #}
+        <h2 class="mt-5">En attente de retrait</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Date commande</th>
+                    <th>Date retrait</th>
+                    <th>Date rendu</th>
+                    <th>Nb Documents</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for commande in commandes %}
+                {% if commande.dateCom is not null and commande.dateRetrait is null and commande.dateCom|date_modify('+7 days') > maintenant %}
+                    <tr>
+                        <td>{{ commande.id }}</td>
+                        <td>{{ commande.dateCom|date('d/m/Y') }}</td>
+                        <td>Aucune</td>
+                        <td>Aucune</td>
+                        <td>{{ commande.documents|length }}</td>
+                        <td><a href="{{ path('app_commande_show', {'id': commande.id}) }}" class="btn btn-primary btn-sm">Voir</a></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {# ===== Commandes annulées ===== #}
+        <h2 class="mt-5">Commandes annulées</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Date commande</th>
+                    <th>Date retrait</th>
+                    <th>Date rendu</th>
+                    <th>Nb Documents</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for commande in commandes %}
+                {% if commande.dateCom is not null and commande.dateRetrait is null and commande.dateCom|date_modify('+7 days') < maintenant %}
+                    <tr>
+                        <td>{{ commande.id }}</td>
+                        <td>{{ commande.dateCom|date('d/m/Y') }}</td>
+                        <td>Aucune</td>
+                        <td>Aucune</td>
+                        <td>{{ commande.documents|length }}</td>
+                        <td><a href="{{ path('app_commande_show', {'id': commande.id}) }}" class="btn btn-primary btn-sm">Voir</a></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {# ===== En cours ===== #}
+        <h2 class="mt-5">Emprunts en cours</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Date commande</th>
+                    <th>Date retrait</th>
+                    <th>Date rendu</th>
+                    <th>Nb Documents</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for commande in commandes %}
+                {% if commande.dateRetrait is not null and commande.dateRendu is null and commande.dateRetrait|date_modify('+1 month') > maintenant %}
+                    <tr>
+                        <td>{{ commande.id }}</td>
+                        <td>{{ commande.dateCom|date('d/m/Y') }}</td>
+                        <td>{{ commande.dateRetrait|date('d/m/Y') }}</td>
+                        <td>Aucune</td>
+                        <td>{{ commande.documents|length }}</td>
+                        <td><a href="{{ path('app_commande_show', {'id': commande.id}) }}" class="btn btn-primary btn-sm">Voir</a></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {# ===== Expirées ===== #}
+        <h2 class="mt-5">Emprunts expirés</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Date commande</th>
+                    <th>Date retrait</th>
+                    <th>Date rendu</th>
+                    <th>Nb Documents</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for commande in commandes %}
+                {% if commande.dateRetrait is not null and commande.dateRendu is null and commande.dateRetrait|date_modify('+1 month') < maintenant %}
+                    <tr>
+                        <td>{{ commande.id }}</td>
+                        <td>{{ commande.dateCom|date('d/m/Y') }}</td>
+                        <td>{{ commande.dateRetrait|date('d/m/Y') }}</td>
+                        <td>Aucune</td>
+                        <td>{{ commande.documents|length }}</td>
+                        <td><a href="{{ path('app_commande_show', {'id': commande.id}) }}" class="btn btn-primary btn-sm">Voir</a></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {# ===== Terminées ===== #}
+        <h2 class="mt-5">Commandes terminées</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Date commande</th>
+                    <th>Date retrait</th>
+                    <th>Date rendu</th>
+                    <th>Nb Documents</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for commande in commandes %}
+                {% if commande.dateRendu is not null %}
+                    <tr>
+                        <td>{{ commande.id }}</td>
+                        <td>{{ commande.dateCom|date('d/m/Y') }}</td>
+                        <td>{{ commande.dateRetrait|date('d/m/Y') }}</td>
+                        <td>{{ commande.dateRendu|date('d/m/Y') }}</td>
+                        <td>{{ commande.documents|length }}</td>
+                        <td><a href="{{ path('app_commande_show', {'id': commande.id}) }}" class="btn btn-primary btn-sm">Voir</a></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+{% endblock %}

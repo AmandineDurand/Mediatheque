@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Commande;
-use App\Form\CommandeType;
+use App\Service\CommandeService;
 use App\Repository\CommandeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,71 +11,86 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/commande')]
+// #[Route('/commande')]
 final class CommandeController extends AbstractController
 {
-    #[Route(name: 'app_commande_index', methods: ['GET'])]
-    public function index(CommandeRepository $commandeRepository): Response
+    #[Route('/panier', name: 'voir_panier')]
+    public function voirPanier(EntityManagerInterface $em): Response
     {
-        return $this->render('commande/index.html.twig', [
-            'commandes' => $commandeRepository->findAll(),
+        $user = $this->getUser();
+
+        $commande = $em->getRepository(Commande::class)->findOneBy([
+            'utilisateur' => $user,
+            'dateCom' => null,
+        ]);
+
+        return $this->render('commande/panier.html.twig', [
+            'commande' => $commande,
         ]);
     }
 
-    #[Route('/new', name: 'app_commande_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/panier/valider', name: 'valider_panier')]
+    public function validerPanier(EntityManagerInterface $em): Response
     {
-        $commande = new Commande();
-        $form = $this->createForm(CommandeType::class, $commande);
-        $form->handleRequest($request);
+        $user = $this->getUser();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($commande);
-            $entityManager->flush();
+        $commande = $em->getRepository(Commande::class)->findOneBy([
+            'utilisateur' => $user,
+            'dateCom' => null,
+        ]);
 
-            return $this->redirectToRoute('app_commande_index', [], Response::HTTP_SEE_OTHER);
+        if (!$commande || count($commande->getDocuments()) === 0) {
+            $this->addFlash('error', 'Votre panier est vide.');
+            return $this->redirectToRoute('voir_panier');
         }
 
-        return $this->render('commande/new.html.twig', [
-            'commande' => $commande,
-            'form' => $form,
+        $commande->setDatecom(new \DateTime()); // Marquer la commande validée
+
+        foreach ($commande->getDocuments() as $document) {
+            // Décrémenter le stock de 1
+            $stockActuel = $document->getStockdoc();
+    
+            if ($stockActuel > 0) {
+                $document->setStockdoc($stockActuel - 1);
+            } else {
+                // Si stock = 0, afficher une erreur ou ignorer selon ce que tu veux
+                $this->addFlash('danger', 'Le document ' . $document->getTitredoc() . ' est en rupture de stock.');
+                // Tu pourrais aussi décider d'annuler toute la validation ici si besoin
+            }
+        }
+
+        $em->flush();
+        $this->addFlash('success', 'Votre commande a été validée !');
+        return $this->redirectToRoute('liste_commandes');
+    }
+
+    #[Route('/mes-commandes', name: 'liste_commandes')]
+    public function listeCommandes(CommandeService $commandeService, CommandeRepository $commandeRepository): Response
+    {
+        $user = $this->getUser();
+
+        $commandes =  $commandeRepository->findBy([
+            'utilisateur' => $user,
+        ]);
+
+        $commandeService->verifierCommandes($commandes);
+
+        return $this->render('commande/liste.html.twig', [
+            'commandes' => $commandes,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_commande_show', methods: ['GET'])]
-    public function show(Commande $commande): Response
-    {
+    #[Route('/mes-commandes/{id}', name: 'app_commande_show', methods: ['GET'])]
+    public function show(Commande $com): Response
+    {   
+        $user = $this->getUser();
+
+        if ($com->getUtilisateur() !== $user) {
+            throw $this->createAccessDeniedException('Accès interdit à cette commande.');
+        }
+
         return $this->render('commande/show.html.twig', [
-            'commande' => $commande,
+            'commande' => $com,
         ]);
-    }
-
-    #[Route('/{id}/edit', name: 'app_commande_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Commande $commande, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(CommandeType::class, $commande);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_commande_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('commande/edit.html.twig', [
-            'commande' => $commande,
-            'form' => $form,
-        ]);
-    }
-
-    #[Route('/{id}', name: 'app_commande_delete', methods: ['POST'])]
-    public function delete(Request $request, Commande $commande, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$commande->getIdcom(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($commande);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_commande_index', [], Response::HTTP_SEE_OTHER);
     }
 }
