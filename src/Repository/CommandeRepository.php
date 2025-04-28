@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Commande;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use \DateTime;
 
 /**
  * @extends ServiceEntityRepository<Commande>
@@ -14,6 +15,17 @@ class CommandeRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Commande::class);
+    }
+
+    public function findExpiredOrders()
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.dateRetrait < :expirationDate')
+            ->andWhere('c.statut = :statut')
+            ->setParameter('expirationDate', new DateTime('-1 month'))
+            ->setParameter('statut', 'expirée')
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**

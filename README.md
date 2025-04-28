@@ -1,73 +1,55 @@
-# Docker AMP Symfony
+# Projet Médiathèque
 
-The purpose of this template project is to provide a quick and easy way to get 
-a Symfony project up and running with Docker. Ths project uses Apache, MySQL and
-PHP.
+Ce projet réalisé avec Symfony est un site fonctionnel pour la médiathèque de Montpellier. L’objectif de ce dernier est d’offrir une interface intuitive permettant la gestion des documents, des adhésions, des abonnements, des prêts et des contentieux tout en respectant les différents droits des utilisateurs. 
 
-## Requirements
+## Prés-requis
 
 - [Docker](https://www.docker.com/)
 - [Docker Composer](https://docs.docker.com/compose/)
-- [Make](https://www.gnu.org/software/make/manual/make.html) (optional — [install `make` for Windows](https://stackoverflow.com/questions/2532234/how-to-run-a-makefile-in-windows))
 
 ## Usage
 
-The first thing to do is to change a little bit the `compose.yml` file. You can
-change the `MYSQL_ROOT_PASSWORD` and `MYSQL_DATABASE` environment variables to
-whatever you want. You really should change the `name` of the container to
-something more meaningful.
+Voici les étapes à suivre pour accéder au site 
 
-```diff
-# compose.yml
-- name: project-name
-+ name: name-of-your-project
-```
+1. Cloner ce répertoire GitHub
 
-Then, you can run the following command if you have `make`.
-
-It will:
-- Build the containers
-- Start the containers
-- Create a new Symfony project in an empty directory
-- Move the Symfony project to the root directory
-- Remove the temporary project directory
-- Warm up the Symfony cache
-
+Pour cela, ouvrez un terminal et placez vous dans le dossier où vous souhaitez avoir le projet via la commande suivante :
 ```bash
-make init
+cd chemin/vers/dossier
 ```
 
-### Or, step by step
-
-You can run the following command to build the containers:
-
+Ensuite, exécutez la commande suivante
 ```bash
-make build # or `docker-compose build` if you don't have `make`
+git clone https://github.com/AmandineDurand/Mediatheque.git
 ```
 
-An image with [PHP](https://www.php.net), [Apache](https://httpd.apache.org), [Composer](https://getcomposer.org) and [Symfony CLI](https://symfony.com/download) ready to use will be built.
+Vous avez désormais tout le code sur votre ordinateur.
 
-After that, you can run the following command to start the containers:
+2. Construire les conteneurs
 
+Exécutez la commande suivante :
 ```bash
-make up # or `docker-compose up -d` if you don't have `make`
+docker-compose build
 ```
 
-Apache should be ready to serve, but you don't have a Symfony project yet. You
-can create one by entering the Apache container and running the following command:
+Dans le logiciel Docker Desktop, vous devez avoir le conteneur "médiatheque" avec les éléments 'apache', 'phpmyadmin' et 'database'
 
+3. Démarrer les conteneurs
+
+Pour finir, exécutez la commande suivante
 ```bash
-make exec # or `docker-compose exec apache bash` if you don't have `make`
-          # it will open a bash session inside the container
+docker-compose up -d
 ```
 
-Then, you can create a new Symfony project in the root directory by running the `init-symfony.sh` script:
+Votre conteneur devrait maintenant être lancé et vous devez voir une pastille verte devant chaque élément.
 
-```bash
-./init-symfony.sh
-```
+4. Accéder aux URLs
 
-You can now access your Symfony project at `http://localhost:8080`.
+Vous avez donc accès :
+- à la base de données PHPMyAdmin via l'URL `http://localhost:8080/`
+- au site vie l'URL `http://localhost:8000`
 
-Remember that every time you want to run a Symfony command, you should run it
-inside the container thanks to the `make exec` command.
+## A noter
+
+Si la page PHPMyAdmin affiche une erreur lors de la connexion, faites réessayer ou rechargez la page (plusieurs fois peuvent être nécessaires)
+La navigation dans le site peut prendre un peu de temps, soyez patient 😉

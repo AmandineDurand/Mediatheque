@@ -14,68 +14,83 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/avis')]
 final class AvisController extends AbstractController
 {
-    #[Route(name: 'app_avis_index', methods: ['GET'])]
-    public function index(AvisRepository $avisRepository): Response
-    {
-        return $this->render('avis/index.html.twig', [
-            'avis' => $avisRepository->findAll(),
-        ]);
-    }
+    // #[Route(name: 'app_avis_index', methods: ['GET'])]
+    // public function index(AvisRepository $avisRepository): Response
+    // {
+    //     return $this->render('avis/index.html.twig', [
+    //         'avis' => $avisRepository->findAll(),
+    //     ]);
+    // }
 
-    #[Route('/new', name: 'app_avis_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $avi = new Avis();
-        $form = $this->createForm(AvisType::class, $avi);
-        $form->handleRequest($request);
+    // #[Route('/new', name: 'app_avis_new', methods: ['GET', 'POST'])]
+    // public function new(Request $request, EntityManagerInterface $entityManager): Response
+    // {
+    //     $avi = new Avis();
+    //     $form = $this->createForm(AvisType::class, $avi);
+    //     $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($avi);
-            $entityManager->flush();
+    //     if ($form->isSubmitted() && $form->isValid()) {
+    //         $entityManager->persist($avi);
+    //         $entityManager->flush();
 
-            return $this->redirectToRoute('app_avis_index', [], Response::HTTP_SEE_OTHER);
-        }
+    //         return $this->redirectToRoute('app_avis_index', [], Response::HTTP_SEE_OTHER);
+    //     }
 
-        return $this->render('avis/new.html.twig', [
-            'avi' => $avi,
-            'form' => $form,
-        ]);
-    }
+    //     return $this->render('avis/new.html.twig', [
+    //         'avi' => $avi,
+    //         'form' => $form,
+    //     ]);
+    // }
 
-    #[Route('/{id}', name: 'app_avis_show', methods: ['GET'])]
-    public function show(Avis $avi): Response
-    {
-        return $this->render('avis/show.html.twig', [
-            'avi' => $avi,
-        ]);
-    }
+    // #[Route('/{id}', name: 'app_avis_show', methods: ['GET'])]
+    // public function show(Avis $avi): Response
+    // {
+    //     return $this->render('avis/show.html.twig', [
+    //         'avi' => $avi,
+    //     ]);
+    // }
 
     #[Route('/{id}/edit', name: 'app_avis_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Avis $avi, EntityManagerInterface $entityManager): Response
     {
+        $user = $this->getUser();
+
+        if ($avi->getUtilisateur() !== $user) {
+            throw $this->createAccessDeniedException();
+        }
         $form = $this->createForm(AvisType::class, $avi);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_avis_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_document_show', ['id' => $avi->getDocument()->getId()]);
         }
 
         return $this->render('avis/edit.html.twig', [
             'avi' => $avi,
-            'form' => $form,
+            'formAvis' => $form,
         ]);
     }
 
     #[Route('/{id}', name: 'app_avis_delete', methods: ['POST'])]
     public function delete(Request $request, Avis $avi, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$avi->getIdavis(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($avi);
-            $entityManager->flush();
+        $user = $this->getUser();
+
+        // Vérification que l'utilisateur est bien le propriétaire de l'avis
+        if ($avi->getUtilisateur() !== $user) {
+            $this->addFlash('danger', 'Vous ne pouvez pas supprimer un avis qui ne vous appartient pas.');
+            return $this->redirectToRoute('app_document_index');
         }
 
-        return $this->redirectToRoute('app_avis_index', [], Response::HTTP_SEE_OTHER);
+        // Protection CSRF
+        if ($this->isCsrfTokenValid('delete'.$avi->getId(), $request->getPayload()->getString('_token'))) {
+            $entityManager->remove($avi);
+            $entityManager->flush();
+            $this->addFlash('success', 'Votre avis a été supprimé.');
+        }
+
+        return $this->redirectToRoute('app_document_index', [], Response::HTTP_SEE_OTHER);
     }
 }

@@ -38,7 +38,7 @@ class Notification
         $this->utilisateurs = new ArrayCollection();
     }
 
-    public function getIdnotif(): ?int
+    public function getId(): ?int
     {
         return $this->id;
     }

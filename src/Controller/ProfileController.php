@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Form\ProfileType;
 use App\Entity\Possede;
+use App\Repository\NotificationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -114,11 +115,22 @@ final class ProfileController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-    // #[Route(name: 'app_utilisateur_index', methods: ['GET'])]
-    // public function index(UtilisateurRepository $utilisateurRepository): Response
-    // {
-    //     return $this->render('utilisateur/index.html.twig', [
-    //         'utilisateurs' => $utilisateurRepository->findAll(),
-    //     ]);
-    // }
+
+    #[Route('/notifications', name: 'app_utilisateur_notifications')]
+    public function notifications(NotificationRepository $notificationRepository): Response
+    {
+        $user = $this->getUser();
+
+        $notifications = $notificationRepository->createQueryBuilder('n')
+            ->join('n.utilisateurs', 'u')
+            ->where('u.id = :userId')
+            ->setParameter('userId', $user->getId())
+            ->orderBy('n.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $this->render('profile/notifications.html.twig', [
+            'notifications' => $notifications,
+        ]);
+    }
 }

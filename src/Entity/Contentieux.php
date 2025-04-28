@@ -32,7 +32,7 @@ class Contentieux
     #[ORM\JoinColumn(nullable: false)]
     private ?Commande $commande = null;
 
-    public function getIdcont(): ?int
+    public function getId(): ?int
     {
         return $this->id;
     }

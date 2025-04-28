@@ -104,6 +104,14 @@
                                 <p class="card-text"><strong>Format : </strong> {{ document.formatVid.toString() }}</p>
                             {% endif %}
 
+                            {% set notes = document.avis|map(a => a.note)|filter(a => a is not null) %}
+                            {% if notes|length > 0 %}
+                                {% set moyenne = (notes|reduce((carry, v) => carry + v)) / (notes|length) %}
+                                <p>Note moyenne : {{ moyenne|number_format(1, '.', ',') }}/5</p>
+                            {% else %}
+                                <p class="text-muted">Pas encore d'avis</p>
+                            {% endif %}
+
                             {% if is_granted('ROLE_ADHERENT') %}
                                 {% if document.stockDoc <=3 and document.stockDoc >1 %}
                                     <div class="alert alert-info py-2">

@@ -1,4 +1,4 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
-{{ form_end(form) }}
+{{ form_start(formAvis, {'attr': {'class': 'container mt-3', id: 'avis-form'}}) }}
+    {{ form_row(formAvis.note, {'attr': {'class': 'form-control'}}) }}
+    {{ form_row(formAvis.commentaire, {'attr': {'class': 'form-control'}}) }}
+{{ form_end(formAvis) }}

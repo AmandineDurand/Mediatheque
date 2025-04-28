@@ -1,0 +1,7 @@
+{{ form_start(form, {'attr': {'class': 'container mt-3', id: 'new-notif-form'}}) }}
+    {{ form_errors(form) }}
+    
+    {{ form_row(form.objetNotif, {'attr': {'class': 'form-control'}}) }}
+    {{ form_row(form.contenuNotif, {'attr': {'class': 'form-control'}}) }}
+    {{ form_row(form.utilisateurs, {'attr': {'class': 'form-control'}}) }}
+{{ form_end(form) }}

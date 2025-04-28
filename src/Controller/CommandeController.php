@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Commande;
+use App\Entity\Contentieux;
 use App\Service\CommandeService;
 use App\Repository\CommandeRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,6 +35,15 @@ final class CommandeController extends AbstractController
     {
         $user = $this->getUser();
 
+        $commandeEnCours = $em->getRepository(Commande::class)->findOneBy([
+            'utilisateur' => $user,
+        ], ['dateCom' => 'DESC']);
+    
+        if ($commandeEnCours && $commandeEnCours->getDateCom() !== null && $commandeEnCours->getDateRendu() === null) {
+            $this->addFlash('error', 'Vous avez déjà une commande en attente. Vous ne pouvez pas en valider une nouvelle.');
+            return $this->redirectToRoute('voir_panier');
+        }
+
         $commande = $em->getRepository(Commande::class)->findOneBy([
             'utilisateur' => $user,
             'dateCom' => null,
@@ -44,18 +54,16 @@ final class CommandeController extends AbstractController
             return $this->redirectToRoute('voir_panier');
         }
 
-        $commande->setDatecom(new \DateTime()); // Marquer la commande validée
+        $commande->setDatecom(new \DateTime()); //Marquer la commande validée
 
         foreach ($commande->getDocuments() as $document) {
-            // Décrémenter le stock de 1
+            //Décrémenter le stock de 1
             $stockActuel = $document->getStockdoc();
     
             if ($stockActuel > 0) {
                 $document->setStockdoc($stockActuel - 1);
             } else {
-                // Si stock = 0, afficher une erreur ou ignorer selon ce que tu veux
                 $this->addFlash('danger', 'Le document ' . $document->getTitredoc() . ' est en rupture de stock.');
-                // Tu pourrais aussi décider d'annuler toute la validation ici si besoin
             }
         }
 
@@ -81,7 +89,7 @@ final class CommandeController extends AbstractController
     }
 
     #[Route('/mes-commandes/{id}', name: 'app_commande_show', methods: ['GET'])]
-    public function show(Commande $com): Response
+    public function show(Commande $com, EntityManagerInterface $em): Response
     {   
         $user = $this->getUser();
 
@@ -89,8 +97,12 @@ final class CommandeController extends AbstractController
             throw $this->createAccessDeniedException('Accès interdit à cette commande.');
         }
 
+        $contentieuxList = $em->getRepository(Contentieux::class)
+                                    ->findBy(['commande' => $com]);
+                                    
         return $this->render('commande/show.html.twig', [
             'commande' => $com,
+            'contentieuxList' => $contentieuxList,
         ]);
     }
 }

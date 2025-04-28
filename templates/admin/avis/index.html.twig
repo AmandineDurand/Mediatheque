@@ -1,0 +1,53 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title_admin %}Les avis{% endblock %}
+
+{% block admin_content %}
+    <h1 class="h3 mb-3 mt-3 font-weight-normal">Liste des avis</h1>
+
+    {% if avis is not empty %}
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Utilisateur</th>
+                        <th>Note</th>
+                        <th>Commentaire</th>
+                        <th>Document associé</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for avi in avis %}
+                        <tr>
+                            <td>{{ avi.id }}</td>
+                            <td>{{ avi.utilisateur.prenomUtil }} {{ avi.utilisateur.nomUtil }}</td>
+                            <td>
+                                {% for i in 1..avi.note %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% endfor %}
+                                {% for i in (avi.note + 1)..5 %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endfor %}
+                                ({{ avi.note }}/5)
+                            </td>
+                            <td>{{ avi.commentaire ? avi.commentaire : 'aucun commentaire' }}</td>
+                            <td>{{ avi.document.titreDoc }}</td>
+                            <td>
+                                <form method="post" action="{{ path('admin_avis_delete', {'id': avi.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet avis ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ avi.id) }}">
+                                    <button class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">Aucun avis à afficher pour le moment.</div>
+    {% endif %}
+{% endblock %}

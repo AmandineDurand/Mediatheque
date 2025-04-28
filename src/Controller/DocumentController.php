@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Document;
 use App\Entity\Commande;
+use App\Entity\Avis;
 use App\Entity\Livre;
 use App\Entity\Periodique;
 use App\Entity\Sonore;
@@ -12,6 +13,7 @@ use App\Enum\FormatVid;
 use App\Enum\FormatSon;
 use App\Enum\Frequence;
 use App\Form\DocumentType;
+use App\Form\AvisType;
 use App\Repository\DocumentRepository;
 use App\Repository\AuteurRepository;
 use App\Repository\CategorieRepository;
@@ -241,8 +243,8 @@ final class DocumentController extends AbstractController
         ]);
     }
 
-    #[Route('document/{id}', name: 'app_document_show', methods: ['GET'])]
-    public function montrer(Document $document, EntityManagerInterface $em): Response
+    #[Route('document/{id}', name: 'app_document_show', methods: ['GET', 'POST'])]
+    public function montrer(Document $document, Request $request, EntityManagerInterface $em): Response
     {
         if ($document instanceof Livre) {
             $type = 'livre';
@@ -263,10 +265,53 @@ final class DocumentController extends AbstractController
             'dateCom' => null
         ]);
 
+        // Chercher s'il a déjà donné un avis pour ce document
+        $avisExist = $em->getRepository(Avis::class)->findOneBy([
+            'utilisateur' => $user,
+            'document' => $document,
+        ]);
+    
+        $form = null;
+
+        if (!$avisExist) {
+            // Créer un nouvel avis si aucun avis existant
+            $avis = new Avis();
+            $avis->setDocument($document);
+            $avis->setUtilisateur($user);
+    
+            $form = $this->createForm(AvisType::class, $avis);
+        } else {
+            // Si un avis existe déjà, on permet à l'utilisateur de le modifier
+            $form = $this->createForm(AvisType::class, $avisExist);
+        }
+    
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Enregistrer l'avis dans la base de données
+            $em->persist($form->getData());
+            $em->flush();
+
+            // Calcul de la nouvelle moyenne des notes du document
+            $notes = array_map(fn($avis) => $avis->getNote(), $document->getAvis()->toArray());
+            $moyenne = count($notes) ? array_sum($notes) / count($notes) : null;
+
+            // Redirection vers la même page après l'ajout ou modification de l'avis
+            $this->addFlash('success', 'Votre avis a été ajouté ou modifié.');
+            return $this->redirectToRoute('app_document_show', ['id' => $document->getId()]);
+        }
+
+        // Calcul de la moyenne des avis
+        $notes = array_map(fn($avis) => $avis->getNote(), $document->getAvis()->toArray());
+        $moyenne = count($notes) ? array_sum($notes) / count($notes) : null;
+
         return $this->render('document/show.html.twig', [
             'document' => $document,
             'type' => $type, 
-            'panier' => $panier 
+            'panier' => $panier,
+            'formAvis' => $form->createView(),
+            'moyenne' => $moyenne,
+            'avisExist' => $avisExist,
         ]);
     }
 
@@ -442,6 +487,11 @@ final class DocumentController extends AbstractController
             $commande = new Commande();
             $commande->setUtilisateur($user);
             $em->persist($commande);
+        }
+
+        if (count($commande->getDocuments()) >= 6) {
+            $this->addFlash('error', 'Vous ne pouvez pas ajouter plus de 6 documents dans votre panier.');
+            return $this->redirectToRoute('voir_panier');
         }
 
         if (!$commande->getDocuments()->contains($document)) {

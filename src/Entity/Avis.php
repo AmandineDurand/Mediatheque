@@ -15,11 +15,11 @@ class Avis
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $note = NULL;
+    #[ORM\Column(nullable: false)]
+    private int $note;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $commentaire = 'NULL';
+    private ?string $commentaire = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: 'avis')]
     #[ORM\JoinColumn(nullable: false)]
@@ -29,7 +29,7 @@ class Avis
     #[ORM\JoinColumn(nullable: false)]
     private ?Document $document = null;
 
-    public function getIdavis(): ?int
+    public function getId(): ?int
     {
         return $this->id;
     }

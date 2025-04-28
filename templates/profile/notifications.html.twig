@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Notifications{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1 class="h3 my-3 font-weight-normal">Mes Notifications</h1>
+
+    {% if notifications is empty %}
+        <div class="alert alert-info">
+            Vous n'avez aucune notification.
+        </div>
+    {% else %}
+        {% for notification in notifications %}
+            <div class="alert alert-primary" role="alert">
+                <h4 class="alert-heading">{{ notification.objetNotif }}</h4>
+                <p>{{ notification.contenuNotif }}</p>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

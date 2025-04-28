@@ -24,17 +24,6 @@
             <input type="text" name="q" class="form-control" placeholder="Rechercher par nom ou prénom..." value="{{ app.request.get('q') }}">
         </div>
         <div class="col-md-4">
-            <select name="filtre" class="form-select">
-                <option value="">-- Tous les statuts --</option>
-                <option value="en_attente_validation" {% if app.request.get('filtre') == 'en_attente_validation' %}selected{% endif %}>En attente de validation</option>
-                <option value="en_attente_retrait" {% if app.request.get('filtre') == 'en_attente_retrait' %}selected{% endif %}>En attente de retrait</option>
-                <option value="annulees" {% if app.request.get('filtre') == 'annulees' %}selected{% endif %}>Annulées</option>
-                <option value="en_cours" {% if app.request.get('filtre') == 'en_cours' %}selected{% endif %}>En cours</option>
-                <option value="expirees" {% if app.request.get('filtre') == 'expirees' %}selected{% endif %}>Expirées</option>
-                <option value="terminees" {% if app.request.get('filtre') == 'terminees' %}selected{% endif %}>Terminées</option>
-            </select>
-        </div>
-        <div class="col-md-4">
             <button type="submit" class="btn btn-primary w-100">🔎 Rechercher</button>
         </div>
     </form>

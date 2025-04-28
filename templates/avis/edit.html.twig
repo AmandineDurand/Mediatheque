@@ -1,13 +1,23 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Avis{% endblock %}
+{% block title %}Modifier mon avis{% endblock %}
 
 {% block body %}
-    <h1>Edit Avis</h1>
+    <div class="container mt-3">
+        <h1 class="h3 mb-3 mt-3 font-weight-normal">Modifier mon avis</h1>
 
-    {{ include('avis/_form.html.twig', {'button_label': 'Update'}) }}
+        {{ include('avis/_form.html.twig') }}
 
-    <a href="{{ path('app_avis_index') }}">back to list</a>
-
-    {{ include('avis/_delete_form.html.twig') }}
+        <div class="row my-3">
+            <div class="col-2">
+                <button type="submit" form="avis-form" class="btn btn-primary btn-sm">Enregistrer</button>
+            </div>
+            <div class="col-2">
+                <a class="btn btn-secondary btn-sm" href="{{ path('app_document_show', {'id': avi.getDocument().getId()}) }}">Retour</a>
+            </div>
+            <div class="col-2">
+                {{ include('avis/_delete_form.html.twig') }}
+            </div>
+        </div>
+    </div>
 {% endblock %}

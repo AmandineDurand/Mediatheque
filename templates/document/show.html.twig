@@ -56,8 +56,8 @@
                         {{ document.auteur.nomAut }}
                     {% endif %}
                 </li>
-                <li class="list-group-item">
-                    {% if document.categories is not empty %}
+                {% if document.categories is not empty %}
+                    <li class="list-group-item">
                         <div class="d-flex flex-wrap gap-2">
                             {% for categorie in document.categories %}
                                 <a class="btn btn-primary btn-sm mb-1">
@@ -65,8 +65,8 @@
                                 </a>
                             {% endfor %}
                         </div>
-                    {% endif %}
-                </li>
+                    </li>
+                {% endif %}
                 <li class="list-group-item"><strong>Type : </strong> {{ type }}</li>
 
                 {% if type == 'livre' %}
@@ -84,7 +84,65 @@
                 {% endif %}
 
                 <li class="list-group-item"><strong>Résumé : </strong> {{ document.resumeDoc }}</li>
+
+                <li class="list-group-item">
+                    {% if moyenne %}
+                        <strong>Note moyenne : </strong>
+                        {% for i in 1..5 %}
+                            {% if i <= moyenne %}
+                                <span class="fa fa-star" style="color: gold;"></span>
+                            {% else %}
+                                <span class="fa fa-star" style="color: lightgray;"></span>
+                            {% endif %}
+                        {% endfor %}
+                        <small>({{ moyenne|number_format(1, '.', ',') }}/5)</small>
+                    {% else %}
+                        <small class="text-muted">Aucune note pour l'instant</small>
+                    {% endif %}
+                </li>
             </ul>
+
+            {% if app.user %}
+                {% if avisExist %}
+                    <div class="alert alert-info">
+                        Vous avez déjà donné un avis pour ce document.
+                        <br>
+                        Note : {{ avisExist.note }} / 5
+                        <br>
+                        Commentaire : {{ avisExist.commentaire }}
+                        <br><br>
+                        <div class="row">
+                            <div class="col-3">
+                                <a href="{{ path('app_avis_edit', {id: avisExist.id}) }}" class="btn btn-primary btn-sm">Modifier</a>
+                            </div>
+                            <div class="col-3">
+                                {{ include('avis/_delete_form.html.twig') }}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <p><strong>Donner mon avis</strong></p>
+                    <div id="formAvis">
+                        {{ include('avis/_form.html.twig') }}
+
+                        <button type="submit" form="avis-form" class="btn btn-primary btn-sm mt-3">Envoyer</button>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <div class="d-flex overflow-auto mt-3 p-2" style="gap: 20px;">
+                {% for avis in document.avis %}
+                    <div class="card" style="min-width: 250px;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ avis.utilisateur.prenomUtil }} {{ avis.utilisateur.nomUtil }}</h5>
+                            <p class="card-text">Note : {{ avis.note }}/5</p>
+                            <p>{{ avis.commentaire }}</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Aucun avis pour ce document.</p>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>

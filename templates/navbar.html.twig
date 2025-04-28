@@ -15,6 +15,7 @@
                 {% if is_granted('ROLE_INSCRIT') %}
                     {{ component.nav_item('Favoris', path('app_favoris'), '', 'app_favoris')}}
                     {{ component.nav_item('Profil', path('app_profile'), '', 'app_profile')}}
+                    {{ component.nav_item('Notifications', path('app_utilisateur_notifications'), '', 'app_utilisateur_notifications')}}
                 {% endif %}
                 {% if is_granted('ROLE_ADHERENT') %}
                     {{ component.nav_item('Panier', path('voir_panier'), '', 'voir_panier')}}

@@ -3,9 +3,8 @@
 namespace App\Form;
 
 use App\Entity\Avis;
-use App\Entity\Document;
-use App\Entity\Utilisateur;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -15,16 +14,15 @@ class AvisType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('note')
-            ->add('commentaire')
-            ->add('utilisateur', EntityType::class, [
-                'class' => Utilisateur::class,
-                'choice_label' => 'id',
+            ->add('note', IntegerType::class, [
+                'label' => 'Note sur 5',
+                'attr' => ['min' => 0, 'max' => 5],
+                'required' => true,
             ])
-            ->add('document', EntityType::class, [
-                'class' => Document::class,
-                'choice_label' => 'id',
-            ])
+            ->add('commentaire', TextareaType::class, [
+                'label' => 'Commentaire',
+                'required' => false,
+            ]);
         ;
     }
 
