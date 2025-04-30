@@ -50,7 +50,7 @@ class AdminController extends AbstractController
     {
         $commande->setDateRendu(new \DateTime());
 
-        // A chaque rendu, on remet 1 au stock de chaque document
+        //Note : à chaque rendu, on remet 1 au stock de chaque document
         foreach ($commande->getDocuments() as $document) {
             $document->setStockDoc($document->getStockDoc() + 1);
         }
@@ -71,10 +71,14 @@ class AdminController extends AbstractController
     }
 
     #[Route('/commandes/{id}', name: 'admin_commandes_show', methods: ['GET'])]
-    public function showAdmin(Commande $commande): Response
+    public function showAdmin(Commande $commande, EntityManagerInterface $em): Response
     {
+        $contentieuxList = $em->getRepository(Contentieux::class)
+                                    ->findBy(['commande' => $commande]);
+                                    
         return $this->render('admin/commandes/show.html.twig', [
             'commande' => $commande,
+            'contentieuxList' => $contentieuxList,
         ]);
     }
 
@@ -97,6 +101,7 @@ class AdminController extends AbstractController
             }
         }
 
+        //On créer un contentieux automatique si la commande est expirée
         if ($statut === 'expirée') {
             $contentieux = new Contentieux();
             $contentieux->setCommande($commande);
@@ -112,34 +117,31 @@ class AdminController extends AbstractController
             return $this->redirectToRoute('app_commande_show', ['id' => $commande->getId()]);
         }
 
-        // Sinon, on affiche le formulaire pour ajouter un contentieux de type dégradation
+        //Sinon, on affiche le formulaire pour ajouter un contentieux de type dégradation
         $contentieux = new Contentieux();
         $contentieux->setCommande($commande);
         $contentieux->setTypecont(TypeCont::Degradation);
         $contentieux->setDatecont(new \DateTime());
 
         $form = $this->createForm(ContentieuxType::class, $contentieux, [
-            'nbDocMax' => $nbDocumentsCommande, // Nombre maximum de documents
+            'nbDocMax' => $nbDocumentsCommande,
         ]);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // $infosCont = [];
-            // for ($i = 1; $i <= $form->get('nbDoc')->getData(); $i++) {
-            //     $infosCont[] = [
-            //         'degradation' => $form->get('degradation_' . $i)->getData(),
-            //         'commentaire' => $form->get('commentaire_' . $i)->getData(),
-            //         'documentDegrade' => $form->get('documentDegrade_' . $i)->getData(),
-            //     ];
-            // }
-
-            // $contentieux->setInfoscont(json_encode($infosCont));
-
             $entityManager->persist($contentieux);
             $entityManager->flush();
+
+            $utilisateur = $commande->getUtilisateur();
+            $nbDoc = $contentieux->getNbdoc() ?? 0;
+            $utilisateur->setNbContentieux($utilisateur->getNbContentieux() + $nbDoc);
+
+            $entityManager->persist($utilisateur);
+            $entityManager->flush();
+
             $this->addFlash('success', 'Contentieux ajouté avec succès');
-            return $this->redirectToRoute('app_commande_show', ['id' => $commande->getId()]);
+            return $this->redirectToRoute('admin_commandes_show', ['id' => $commande->getId()]);
         }
 
         return $this->render('admin/contentieux/new.html.twig', [
@@ -160,13 +162,11 @@ class AdminController extends AbstractController
     #[Route('/avis/{id}/supprimer', name: 'admin_avis_delete', methods: ['POST'])]
     public function adminDelete(Request $request, Avis $avi, EntityManagerInterface $entityManager): Response
     {
-        // Vérifier que l'utilisateur connecté est un admin
         if (!$this->isGranted('ROLE_BIBLIOTHECAIRE')) {
             $this->addFlash('danger', 'Accès refusé. Seul un administrateur peut faire cette action.');
             return $this->redirectToRoute('app_document_index');
         }
 
-        // Protection CSRF
         if ($this->isCsrfTokenValid('delete'.$avi->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($avi);
             $entityManager->flush();

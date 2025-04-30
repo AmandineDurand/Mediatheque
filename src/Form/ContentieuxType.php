@@ -32,6 +32,7 @@ class ContentieuxType extends AbstractType
                     'min' => 1,
                     'max' => $options['nbDocMax'],
                 ],
+                'required' => true,
             ]);
     }
 

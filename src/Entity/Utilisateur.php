@@ -73,6 +73,12 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'utilisateur')]
     private Collection $avis;
 
+    /**
+     * @var Collection<int, DemandeAbonnement>
+     */
+    #[ORM\OneToMany(targetEntity: DemandeAbonnement::class, mappedBy: 'utilisateur')]
+    private Collection $demandeAbonnements;
+
     public function __construct()
     {
         $this->documentsAimes = new ArrayCollection();
@@ -80,6 +86,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         $this->notifications = new ArrayCollection();
         $this->commandes = new ArrayCollection();
         $this->avis = new ArrayCollection();
+        $this->demandeAbonnements = new ArrayCollection();
     }
 
     public function getPassword(): string
@@ -316,6 +323,36 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($avi->getUtilisateur() === $this) {
                 $avi->setUtilisateur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DemandeAbonnement>
+     */
+    public function getDemandeAbonnements(): Collection
+    {
+        return $this->demandeAbonnements;
+    }
+
+    public function addDemandeAbonnement(DemandeAbonnement $demandeAbonnement): static
+    {
+        if (!$this->demandeAbonnements->contains($demandeAbonnement)) {
+            $this->demandeAbonnements->add($demandeAbonnement);
+            $demandeAbonnement->setUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeAbonnement(DemandeAbonnement $demandeAbonnement): static
+    {
+        if ($this->demandeAbonnements->removeElement($demandeAbonnement)) {
+            // set the owning side to null (unless already changed)
+            if ($demandeAbonnement->getUtilisateur() === $this) {
+                $demandeAbonnement->setUtilisateur(null);
             }
         }
 

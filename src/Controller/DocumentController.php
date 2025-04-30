@@ -81,7 +81,6 @@ final class DocumentController extends AbstractController
     {
         $type = $request->query->get('type', 'livre');
 
-        //Crée un objet vide pour charger le formulaire une première fois
         $document = match ($type) {
             'livre' => new Livre(),
             'periodique' => new Periodique(),
@@ -98,7 +97,6 @@ final class DocumentController extends AbstractController
         if ($form->isSubmitted()) {
             $submittedType = $form->get('type')->getData();
 
-            //Si l'utilisateur a changé de type, on crée le bon objet
             if ($submittedType !== $type) {
                 $type = $submittedType;
                 $document = match ($type) {
@@ -108,7 +106,6 @@ final class DocumentController extends AbstractController
                     'video' => new Video(),
                 };
 
-                //Recrée le formulaire avec le bon objet
                 $form = $this->createForm(DocumentType::class, $document, [
                     'is_edit' => false,
                     'document_type' => $type,
@@ -196,7 +193,6 @@ final class DocumentController extends AbstractController
                         break;
                 }
 
-                //Si des erreurs ont été ajoutées, on n'enregistre pas
                 if ($hasErrors) {
                     return $this->render('document/new.html.twig', [
                         'form' => $form->createView(),
@@ -209,7 +205,6 @@ final class DocumentController extends AbstractController
                 $document->setStockDoc($form->get('stockDoc')->getData());
                 $document->setAuteur($form->get('auteur')->getData());
                 
-                //Gestion des catégories
                 $categories = $form->get('categories')->getData();
                 foreach ($categories as $categorie) {
                     $document->addCategory($categorie);
@@ -265,7 +260,6 @@ final class DocumentController extends AbstractController
             'dateCom' => null
         ]);
 
-        // Chercher s'il a déjà donné un avis pour ce document
         $avisExist = $em->getRepository(Avis::class)->findOneBy([
             'utilisateur' => $user,
             'document' => $document,
@@ -274,34 +268,28 @@ final class DocumentController extends AbstractController
         $form = null;
 
         if (!$avisExist) {
-            // Créer un nouvel avis si aucun avis existant
             $avis = new Avis();
             $avis->setDocument($document);
             $avis->setUtilisateur($user);
     
             $form = $this->createForm(AvisType::class, $avis);
         } else {
-            // Si un avis existe déjà, on permet à l'utilisateur de le modifier
             $form = $this->createForm(AvisType::class, $avisExist);
         }
     
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Enregistrer l'avis dans la base de données
             $em->persist($form->getData());
             $em->flush();
 
-            // Calcul de la nouvelle moyenne des notes du document
             $notes = array_map(fn($avis) => $avis->getNote(), $document->getAvis()->toArray());
             $moyenne = count($notes) ? array_sum($notes) / count($notes) : null;
 
-            // Redirection vers la même page après l'ajout ou modification de l'avis
             $this->addFlash('success', 'Votre avis a été ajouté ou modifié.');
             return $this->redirectToRoute('app_document_show', ['id' => $document->getId()]);
         }
 
-        // Calcul de la moyenne des avis
         $notes = array_map(fn($avis) => $avis->getNote(), $document->getAvis()->toArray());
         $moyenne = count($notes) ? array_sum($notes) / count($notes) : null;
 
@@ -404,12 +392,10 @@ final class DocumentController extends AbstractController
         $user = $this->getUser();
         
         if (!$user) {
-            // Si l'utilisateur n'est pas connecté, rediriger vers la page de connexion
             return $this->redirectToRoute('app_login');
         }
-        // dd(get_class($this->getUser()), method_exists($this->getUser(), 'getDocumentsAimes'));
         
-        $documentsFavoris = $user->getDocumentsAimes(); // Récupère tous les documents aimés par l'utilisateur
+        $documentsFavoris = $user->getDocumentsAimes();
 
         $documentTypes = [];
 
@@ -445,25 +431,18 @@ final class DocumentController extends AbstractController
         $user = $this->getUser();
         
         if (!$user) {
-            // Si l'utilisateur n'est pas connecté, rediriger vers la page de connexion
             return $this->redirectToRoute('app_login');
         }
 
-        // Vérifier si le document est déjà aimé
         if ($user->getDocumentsAimes()->contains($document)) {
-            // Si oui, on le retire des favoris
             $user->removeDocumentsAime($document);
         } else {
-            // Sinon, on l'ajoute aux favoris
             $user->addDocumentsAime($document);
         }
 
-        // Sauvegarder les changements en base de données
-        // $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($user);
         $entityManager->flush();
 
-        // Rediriger vers la même page avec un message flash
         return $this->redirectToRoute('app_document_index', ['message' => 'Favori mis à jour']);
     }
 
@@ -476,14 +455,12 @@ final class DocumentController extends AbstractController
             throw $this->createAccessDeniedException('Vous devez être connecté pour emprunter un document.');
         }
 
-        // Chercher une commande "panier" existante
         $commande = $em->getRepository(Commande::class)->findOneBy([
             'utilisateur' => $user,
             'dateCom' => null,
         ]);
 
         if (!$commande) {
-            // Pas de commande "panier" existante, on en crée une
             $commande = new Commande();
             $commande->setUtilisateur($user);
             $em->persist($commande);
@@ -518,6 +495,6 @@ final class DocumentController extends AbstractController
 
         $em->flush();
 
-        return $this->redirectToRoute('app_document_index'); // ou où tu veux
+        return $this->redirectToRoute('app_document_index');
     }
 }

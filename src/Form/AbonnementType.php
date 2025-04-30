@@ -40,8 +40,8 @@ class AbonnementType extends AbstractType
             ]);
         
         $builder->get('prixAbo')->addModelTransformer(new CallbackTransformer(
-            fn ($value) => $value !== null ? (float)$value : null,     // DB → Form
-            fn ($value) => $value !== null ? number_format($value, 2, '.', '') : null // Form → DB
+            fn ($value) => $value !== null ? (float)$value : null,
+            fn ($value) => $value !== null ? number_format($value, 2, '.', '') : null
         ));
     }
 

@@ -19,7 +19,6 @@ class CommandeService
         $now = new \DateTime();
 
         foreach ($commandes as $commande) {
-            // Si commande validée mais jamais retirée et dépasse 7 jours => ANNULER
             if ($commande->getDateCom() && !$commande->getDateRetrait()) {
                 $dateComPlus7 = (clone $commande->getDateCom())->modify('+7 days');
                 if ($now > $dateComPlus7) {

@@ -16,7 +16,6 @@
                                     <img src="{{ document.url }}" alt="Image" class="img-fluid rounded" style="max-height: 80px;">
                                 </td>
                                 <td>{{ document.titreDoc }}</td>
-                                {# <td>{{ document_types[document.id] }}</td> #}
                                 <td>{{ document.resumeDoc|length > 50 ? document.resumeDoc|slice(0, 50) ~ '…' : document.resumeDoc }}</td>
                                 <td style="width: 25%;">
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">

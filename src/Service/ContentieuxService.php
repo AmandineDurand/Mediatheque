@@ -23,19 +23,17 @@ class ContentieuxService
         $commandes = $this->commandeRepository->findExpiredOrders();
 
         foreach ($commandes as $commande) {
-            // Créer un contentieux
             $contentieux = new Contentieux();
             $contentieux->setDatecont(new DateTime());
             $contentieux->setTypecont(TypeCont::Retard);
-            $contentieux->setNbdoc(count($commande->getDocuments())); // Nombre de documents dans la commande
+            $contentieux->setNbdoc(count($commande->getDocuments()));
             $contentieux->setCommande($commande);
 
             $this->entityManager->persist($contentieux);
             $this->entityManager->flush();
             
-            // Ajouter le contentieux à l'utilisateur (à la commande ou autre)
             $utilisateur = $commande->getUtilisateur();
-            $utilisateur->addContentieux($contentieux); // Ajoute le contentieux à l'utilisateur (ajoute une méthode d'addition dans l'entité Utilisateur)
+            $utilisateur->addContentieux($contentieux);
             $this->entityManager->flush();
         }
     }

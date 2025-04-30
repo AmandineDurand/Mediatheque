@@ -25,17 +25,14 @@ class InscriptionController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $rawPassword = $form->get('mdp')->getData(); // Utiliser cette ligne
-            $hashedPassword = $passwordHasher->hashPassword($user, $rawPassword); // Hachage du mot de passe
+            $rawPassword = $form->get('mdp')->getData();
+            $hashedPassword = $passwordHasher->hashPassword($user, $rawPassword); //Note : hachage du mot de passe
             $user->setMotDePasse($hashedPassword);
 
             $user->setRoles(['ROLE_INSCRIT']);
 
-            // Sauvegarder l'utilisateur dans la base de données
             $entityManager->persist($user);
             $entityManager->flush();
-
-            // do anything else you need here, like send an email
 
             return $this->redirectToRoute('connexion');
         }

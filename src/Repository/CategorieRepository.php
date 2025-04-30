@@ -12,6 +12,4 @@ class CategorieRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Categorie::class);
     }
-
-    // Ici tu pourras ajouter tes requêtes personnalisées
 }

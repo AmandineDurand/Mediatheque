@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Form\ProfileType;
 use App\Entity\Possede;
+use App\Enum\TypeAbo;
 use App\Repository\NotificationRepository;
+use App\Repository\DemandeAbonnementRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,14 +19,17 @@ final class ProfileController extends AbstractController
 {
     #[Route(name: 'app_profile')]
     #[IsGranted('ROLE_INSCRIT')]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(EntityManagerInterface $entityManager, DemandeAbonnementRepository $demandeAbonnementRepository): Response
     {
         $user = $this->getUser();
         $abonnementInfo = null;
         $warningMessage = null;
+
+        $derniereDemande = $demandeAbonnementRepository->findOneBy([
+            'utilisateur' => $this->getUser(),
+        ], ['dateSoumission' => 'DESC']);        
         
         if (in_array('ROLE_ADHERENT', $user->getRoles())) {
-            // Récupérer directement l'abonnement via le repository
             $possedeRepository = $entityManager->getRepository(Possede::class);
             $possede = $possedeRepository->findOneBy(['utilisateur' => $user]);
             
@@ -32,16 +37,24 @@ final class ProfileController extends AbstractController
                 $type = $possede->getAbonnement()->getTypeabo();
                 $dateDebut = $possede->getDateDebut();
 
-                $dateFin = (clone $dateDebut);
-                if ($type === 'annuel') {
+                $dateFin = clone $dateDebut;
+
+                if ($type instanceof TypeAbo) {
+                    $typeValue = $type->value;
+                } else {
+                    $typeValue = $type;
+                }
+                
+                if ($typeValue === 'annuel') {
                     $dateFin->modify('+1 year');
-                } elseif ($type === 'mensuel') {
+                } elseif ($typeValue === 'mensuel') {
                     $dateFin->modify('+1 month');
                 }
 
+                $dateFin->setTime(23, 59, 59);
+                
                 $currentDate = new \DateTime();
-                $diff = $currentDate->diff($dateFin);
-                $remainingDays = $diff->days;
+                $remainingDays = $currentDate->diff($dateFin)->days;
 
                 if ($remainingDays <= 5) {
                     $warningMessage = "Attention, votre abonnement expire dans $remainingDays jours.";
@@ -63,39 +76,9 @@ final class ProfileController extends AbstractController
             'user' => $user,
             'abonnement' => $abonnementInfo,
             'warningMessage' => $warningMessage,
+            'derniereDemande' => $derniereDemande,
         ]);
     }
-    // public function index(): Response
-    // {
-    //     $user = $this->getUser();
-    //     // dd($user, get_class($user));
-
-    //     $abonnementInfo = null;
-
-    //     if (in_array('ROLE_ADHERENT', $user->getRoles())) {
-    //         $abonnements = $user->getAbonnements();
-    //         if (!$abonnements->isEmpty()) {
-    //             $possede = $abonnements->first();
-            
-    //             if ($possede) {
-    //                 $dateDebut = $possede->getDateDebut();
-    //                 $dateFin = (clone $dateDebut)->modify('+1 year');
-    //                 $type = $possede->getAbonnement()->getTypeAbo();
-
-    //                 $abonnementInfo = [
-    //                     'type' => $type,
-    //                     'debut' => $dateDebut,
-    //                     'fin' => $dateFin
-    //                 ];
-    //             }
-    //         }
-    //     }
-
-    //     return $this->render('profile/index.html.twig', [
-    //         'user' => $user,
-    //         'abonnement' => $abonnementInfo,
-    //     ]);
-    // }
 
     #[Route('/modifier', name: 'app_profile_edit')]
     public function modifier(Request $request, EntityManagerInterface $em): Response

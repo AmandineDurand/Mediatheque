@@ -31,12 +31,10 @@ class InscriptionFormType extends AbstractType
                     new Length([
                         'min' => 6,
                         'minMessage' => 'Votre mot de passe devrait au moins avoir {{ limit }} charactères',
-                        // max length allowed by Symfony for security reasons
                         'max' => 4096,
                     ]),
                 ],
             ]);
-            // ->add('save', SubmitType::class, ['label' => 'S\'inscrire']);
     }
 
     public function configureOptions(OptionsResolver $resolver)

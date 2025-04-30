@@ -112,7 +112,6 @@ class DocumentType extends AbstractType
                     'label' => 'Format de la vidéo'
                 ]);
         } else {
-            // En édition, ajouter directement les champs spécifiques au type
             switch ($documentType) {
                 case 'livre':
                     $builder->add('ISBN', TextType::class, [
@@ -126,11 +125,11 @@ class DocumentType extends AbstractType
                     break;
                 case 'periodique':
                     $builder->add('frequence', ChoiceType::class, [
-                        'choices' => Frequence::cases(), // <- la liste des valeurs possibles
-                        'choice_label' => fn(Frequence $choice) => $choice->name, // ce qui s'affiche dans le menu déroulant
-                        'choice_value' => fn(?Frequence $choice) => $choice?->value, // <- la valeur envoyée dans le formulaire
+                        'choices' => Frequence::cases(),
+                        'choice_label' => fn(Frequence $choice) => $choice->name,
+                        'choice_value' => fn(?Frequence $choice) => $choice?->value,
                         'placeholder' => 'Choisissez une fréquence',
-                        'required' => true, // ou false si le champ peut être vide
+                        'required' => true,
                         'label' => 'Fréquence',
                     ])
                     ->add('numero', NumberType::class, [
@@ -144,11 +143,11 @@ class DocumentType extends AbstractType
                         'required' => true
                     ])
                     ->add('formatSon', ChoiceType::class, [
-                        'choices' => FormatSon::cases(), // <- la liste des valeurs possibles
-                        'choice_label' => fn(FormatSon $choice) => $choice->name, // ce qui s'affiche dans le menu déroulant
-                        'choice_value' => fn(?FormatSon $choice) => $choice?->value, // <- la valeur envoyée dans le formulaire
+                        'choices' => FormatSon::cases(), 
+                        'choice_label' => fn(FormatSon $choice) => $choice->name, 
+                        'choice_value' => fn(?FormatSon $choice) => $choice?->value,
                         'placeholder' => 'Choisissez un format',
-                        'required' => true, // ou false si le champ peut être vide
+                        'required' => true, 
                         'label' => 'Format Vidéo',
                     ]);
                     break;
@@ -158,11 +157,11 @@ class DocumentType extends AbstractType
                         'required' => true
                     ])
                     ->add('formatVid', ChoiceType::class, [
-                        'choices' => FormatVid::cases(), // <- la liste des valeurs possibles
-                        'choice_label' => fn(FormatVid $choice) => $choice->name, // ce qui s'affiche dans le menu déroulant
-                        'choice_value' => fn(?FormatVid $choice) => $choice?->value, // <- la valeur envoyée dans le formulaire
+                        'choices' => FormatVid::cases(), 
+                        'choice_label' => fn(FormatVid $choice) => $choice->name, 
+                        'choice_value' => fn(?FormatVid $choice) => $choice?->value,
                         'placeholder' => 'Choisissez un format',
-                        'required' => true, // ou false si le champ peut être vide
+                        'required' => true, 
                         'label' => 'Format Vidéo',
                     ]);
                     break;

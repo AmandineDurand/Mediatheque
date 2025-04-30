@@ -3,7 +3,6 @@
     
     {{ form_errors(form) }}
 
-    <!-- Formulaire général avec alignement en ligne pour Titre et Année Sortie -->
     <div class="row mb-3">
         <div class="col-md-6">
             {{ form_row(form.titreDoc, {'attr': {'class': 'form-control'}}) }}
@@ -20,7 +19,6 @@
         {{ form_row(form.resumeDoc, {'attr': {'class': 'form-control'}}) }}
     </div>
 
-    <!-- Alignement en ligne pour Stock et Auteur -->
     <div class="row mb-3">
         <div class="col-md-6">
             {{ form_row(form.stockDoc, {'attr': {'class': 'form-control'}}) }}
@@ -38,7 +36,6 @@
         {{ form_row(form.type, {'attr': {'class': 'form-control', 'id': 'document_type'}}) }}
     </div>
 
-    <!-- Subforms -->
     <div id="subforms">
         <div id="subform-livre" class="subform subform-livre">
             {% if form.ISBN is defined %}

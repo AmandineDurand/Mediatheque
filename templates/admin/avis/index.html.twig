@@ -6,7 +6,7 @@
     <h1 class="h3 mb-3 mt-3 font-weight-normal">Liste des avis</h1>
 
     {% if avis is not empty %}
-        <div class="table-responsive">
+        <div class="table-responsive mb-3">
             <table class="table table-hover table-striped align-middle">
                 <thead class="table-dark">
                     <tr>
@@ -24,11 +24,12 @@
                             <td>{{ avi.id }}</td>
                             <td>{{ avi.utilisateur.prenomUtil }} {{ avi.utilisateur.nomUtil }}</td>
                             <td>
-                                {% for i in 1..avi.note %}
-                                    <i class="fas fa-star text-warning"></i>
-                                {% endfor %}
-                                {% for i in (avi.note + 1)..5 %}
-                                    <i class="far fa-star text-warning"></i>
+                                {% for i in 1..5 %}
+                                    {% if i <= avi.note %}
+                                        <span class="fa fa-star" style="color: gold;"></span>
+                                    {% else %}
+                                        <span class="fa fa-star" style="color: lightgray;"></span>
+                                    {% endif %}
                                 {% endfor %}
                                 ({{ avi.note }}/5)
                             </td>

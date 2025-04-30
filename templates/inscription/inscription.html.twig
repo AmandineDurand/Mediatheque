@@ -10,13 +10,11 @@
     {{ form_start(inscriptionForm, { attr: { 'data-turbo': 'false' } }) }}
         <div class="row">
             <div class="col-sm">
-                {# {{ form_row(inscriptionForm.nomUtil) }} #}
                 {{ form_label(inscriptionForm.nomUtil, 'Nom') }}
                 {{ form_widget(inscriptionForm.nomUtil, { 'attr': { 'class': 'form-control' } }) }}
                 {{ form_errors(inscriptionForm.nomUtil) }}
             </div>
             <div class="col-sm">
-                {# {{ form_row(inscriptionForm.prenomUtil) }} #}
                 {{ form_label(inscriptionForm.prenomUtil, 'Prénom') }}
                 {{ form_widget(inscriptionForm.prenomUtil, { 'attr': { 'class': 'form-control' } }) }}
                 {{ form_errors(inscriptionForm.prenomUtil) }}

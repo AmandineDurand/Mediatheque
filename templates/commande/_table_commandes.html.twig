@@ -1,0 +1,46 @@
+{% set maintenant = "now"|date_modify('0 seconds') %}
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Date commande</th>
+            <th>Date retrait</th>
+            <th>Date rendu</th>
+            <th>Nb Documents</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for commande in commandes %}
+        {% set afficher = false %}
+
+        {% if filtre == 'en_attente_validation' and commande.dateCom is null %}
+            {% set afficher = true %}
+        {% elseif filtre == 'en_attente_retrait' and commande.dateCom is not null and commande.dateRetrait is null and commande.dateCom|date_modify('+7 days') > maintenant %}
+            {% set afficher = true %}
+        {% elseif filtre == 'annulees' and commande.dateCom is not null and commande.dateRetrait is null and commande.dateCom|date_modify('+7 days') < maintenant %}
+            {% set afficher = true %}
+        {% elseif filtre == 'en_cours' and commande.dateRetrait is not null and commande.dateRendu is null and commande.dateRetrait|date_modify('+1 month') > maintenant %}
+            {% set afficher = true %}
+        {% elseif filtre == 'expirees' and commande.dateRetrait is not null and commande.dateRendu is null and commande.dateRetrait|date_modify('+1 month') < maintenant %}
+            {% set afficher = true %}
+        {% elseif filtre == 'terminees' and commande.dateRendu is not null and commande.dateRendu < maintenant %}
+            {% set afficher = true %}
+        {% endif %}
+
+        {% if afficher %}
+            <tr>
+                <td>{{ commande.id }}</td>
+                <td>{{ commande.dateCom ? commande.dateCom|date('d/m/Y') : 'Aucune' }}</td>
+                <td>{{ commande.dateRetrait ? commande.dateRetrait|date('d/m/Y') : 'Aucune' }}</td>
+                <td>{{ commande.dateRendu ? commande.dateRendu|date('d/m/Y') : 'Aucune' }}</td>
+                <td>{{ commande.documents|length }}</td>
+                <td>
+                    <a href="{{ path('app_commande_show', {'id': commande.id}) }}" class="btn btn-primary btn-sm">Voir</a>
+                </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+    </tbody>
+</table>

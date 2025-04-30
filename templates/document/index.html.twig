@@ -55,11 +55,9 @@
             {% for document in documents %}
                 <div class="col-md-3 mb-4">
                     <div class="card" style="width: 18rem;">
-                        <!-- Image en haut de la carte -->
                         <img src="{{ document.url }}" class="card-img-top" alt="Image de document">
 
                         <div class="card-body">
-                            <!-- Titre et Année de Sortie -->
                             <h5 class="card-title">{{ document.titreDoc }}</h5>
                             <p class="card-text mb-1">Sorti en {{ document.anneeSortie ? document.anneeSortie|date('Y') : '' }}</p>
                             {% if document.auteur == NULL %}
@@ -67,11 +65,6 @@
                             {% else %}
                                 <p class="card-text mb-2">De {{ document.auteur.nomAut }}</p>
                             {% endif %}
-
-                            <!-- Auteur et Catégories avec fond bleu transparent -->
-                            {# <p class="card-text bg-primary text-white rounded p-2">
-                                {{ document.categories|map(categorie => categorie.nomCat)|join(', ') }}
-                            </p> #}
 
                             {% if document.categories is not empty %}
                                 <div class="d-flex flex-wrap gap-2">
@@ -83,13 +76,10 @@
                                 </div>
                             {% endif %}
 
-                            <!-- Résumé -->
                             <p class="card-text">{{ document.resumeDoc|length > 50 ? document.resumeDoc|slice(0, 50) ~ '…' : document.resumeDoc }}</p>
 
-                            <!-- Type de document -->
                             <p class="card-text mb-1"><strong>Type : </strong>{{ document_types[document.id] }}</p>
 
-                            <!-- Affichage des informations spécifiques au type de document -->
                             {% if document_types[document.id]== 'livre' %}
                                 <p class="card-text mb-1"><strong>ISBN : </strong> {{ document.ISBN }}</p>
                                 <p class="card-text"><strong>Nombre de Pages : </strong> {{ document.nbPages }}</p>
@@ -168,7 +158,6 @@
             document.getElementById('search-title').addEventListener('keyup', function () {
                 const searchValue = this.value;
 
-                // On récupère les filtres déjà présents dans l’URL
                 const params = new URLSearchParams(window.location.search);
 
                 if (searchValue.trim() !== '') {
@@ -182,7 +171,6 @@
                 })
                 .then(response => response.text())
                 .then(html => {
-                    // Remplace juste la partie contenant les cartes
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     const newCards = doc.querySelector('#documents-container');

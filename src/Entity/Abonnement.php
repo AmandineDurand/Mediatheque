@@ -36,10 +36,17 @@ class Abonnement
     #[ORM\OneToMany(targetEntity: Fichier::class, mappedBy: 'abonnement')]
     private Collection $fichiers;
 
+    /**
+     * @var Collection<int, DemandeAbonnement>
+     */
+    #[ORM\OneToMany(targetEntity: DemandeAbonnement::class, mappedBy: 'abonnement')]
+    private Collection $demandeAbonnements;
+
     public function __construct()
     {
         $this->possedes = new ArrayCollection();
         $this->fichiers = new ArrayCollection();
+        $this->demandeAbonnements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -125,6 +132,36 @@ class Abonnement
             // set the owning side to null (unless already changed)
             if ($fichier->getAbonnement() === $this) {
                 $fichier->setAbonnement(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DemandeAbonnement>
+     */
+    public function getDemandeAbonnements(): Collection
+    {
+        return $this->demandeAbonnements;
+    }
+
+    public function addDemandeAbonnement(DemandeAbonnement $demandeAbonnement): static
+    {
+        if (!$this->demandeAbonnements->contains($demandeAbonnement)) {
+            $this->demandeAbonnements->add($demandeAbonnement);
+            $demandeAbonnement->setAbonnement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeAbonnement(DemandeAbonnement $demandeAbonnement): static
+    {
+        if ($this->demandeAbonnements->removeElement($demandeAbonnement)) {
+            // set the owning side to null (unless already changed)
+            if ($demandeAbonnement->getAbonnement() === $this) {
+                $demandeAbonnement->setAbonnement(null);
             }
         }
 

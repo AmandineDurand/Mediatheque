@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle demande d'abonnement{% endblock %}
+
+{% block body %}
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="mb-0">Faire une demande d'abonnement</h2>
+                    </div>
+                    <div class="card-body">
+                        {{ form_start(form) }}
+                        
+                            <div class="mb-3">
+                                {{ form_row(form.abonnement, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Soumettre ma demande</button>
+                            <a href="{{ path('app_profile') }}" class="btn btn-outline-secondary">Annuler</a>
+                        
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

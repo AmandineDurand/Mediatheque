@@ -54,10 +54,10 @@ final class CommandeController extends AbstractController
             return $this->redirectToRoute('voir_panier');
         }
 
-        $commande->setDatecom(new \DateTime()); //Marquer la commande validée
+        $commande->setDatecom(new \DateTime());
 
+        //Note : on décrémente le stock du document de 1
         foreach ($commande->getDocuments() as $document) {
-            //Décrémenter le stock de 1
             $stockActuel = $document->getStockdoc();
     
             if ($stockActuel > 0) {

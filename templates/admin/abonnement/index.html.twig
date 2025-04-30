@@ -51,4 +51,59 @@
             <div class="alert alert-warning">Aucun abonnement</div>
         </div>
     {% endif %}
+
+    {% if demandes is not empty %}
+        <h1 class="h3 mb-3 mt-3 font-weight-normal">Demandes d'abonement</h1>
+
+        <div class="table-responsive mb-3">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Utilisateur</th>
+                        <th>Abonnement</th>
+                        <th>Date de soumission</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for demande in demandes %}
+                        <tr>
+                            <td>{{ demande.id }}</td>
+                            <td>{{ demande.utilisateur.prenomUtil }} {{ demande.utilisateur.nomUtil }}</td>
+                            <td>{{ demande.abonnement.typeAbo.toString() }} - {{ demande.abonnement.prixAbo }}€</td>
+                            <td>{{ demande.dateSoumission|date('d/m/Y') }}</td>
+                            <td>
+                                {% if demande.statut.value == 'en_attente' %}
+                                    <span class="badge bg-warning text-dark">En attente</span>
+                                {% elseif demande.statut.value == 'approuvee' %}
+                                    <span class="badge bg-success">Approuvée</span>
+                                {% elseif demande.statut.value == 'refusee' %}
+                                    <span class="badge bg-danger">Refusée</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {# <a href="{{ path('app_demande_abonnement_show', {'id': demande.id}) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a> #}
+                                {% if demande.statut.value == 'en_attente' %}
+                                    <a href="{{ path('app_admin_abonnement_valider', {'id': demande.id}) }}" class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    <a href="{{ path('app_admin_abonnement_refuser', {'id': demande.id}) }}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-warning">Aucune demande</div>
+        </div>
+    {% endif %}
 {% endblock %}

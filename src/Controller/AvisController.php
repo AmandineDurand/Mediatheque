@@ -14,42 +14,6 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/avis')]
 final class AvisController extends AbstractController
 {
-    // #[Route(name: 'app_avis_index', methods: ['GET'])]
-    // public function index(AvisRepository $avisRepository): Response
-    // {
-    //     return $this->render('avis/index.html.twig', [
-    //         'avis' => $avisRepository->findAll(),
-    //     ]);
-    // }
-
-    // #[Route('/new', name: 'app_avis_new', methods: ['GET', 'POST'])]
-    // public function new(Request $request, EntityManagerInterface $entityManager): Response
-    // {
-    //     $avi = new Avis();
-    //     $form = $this->createForm(AvisType::class, $avi);
-    //     $form->handleRequest($request);
-
-    //     if ($form->isSubmitted() && $form->isValid()) {
-    //         $entityManager->persist($avi);
-    //         $entityManager->flush();
-
-    //         return $this->redirectToRoute('app_avis_index', [], Response::HTTP_SEE_OTHER);
-    //     }
-
-    //     return $this->render('avis/new.html.twig', [
-    //         'avi' => $avi,
-    //         'form' => $form,
-    //     ]);
-    // }
-
-    // #[Route('/{id}', name: 'app_avis_show', methods: ['GET'])]
-    // public function show(Avis $avi): Response
-    // {
-    //     return $this->render('avis/show.html.twig', [
-    //         'avi' => $avi,
-    //     ]);
-    // }
-
     #[Route('/{id}/edit', name: 'app_avis_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Avis $avi, EntityManagerInterface $entityManager): Response
     {
@@ -78,13 +42,11 @@ final class AvisController extends AbstractController
     {
         $user = $this->getUser();
 
-        // Vérification que l'utilisateur est bien le propriétaire de l'avis
         if ($avi->getUtilisateur() !== $user) {
             $this->addFlash('danger', 'Vous ne pouvez pas supprimer un avis qui ne vous appartient pas.');
             return $this->redirectToRoute('app_document_index');
         }
 
-        // Protection CSRF
         if ($this->isCsrfTokenValid('delete'.$avi->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($avi);
             $entityManager->flush();

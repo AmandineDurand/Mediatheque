@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\FichierRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Table(name: 'Fichier')]
 #[ORM\Entity(repositoryClass: FichierRepository::class)]
@@ -15,42 +17,47 @@ class Fichier
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column(length: 100, nullable: false)]
+    #[Vich\UploadableField(mapping: 'fichier_utilisateur', fileNameProperty: 'nomFichier')]
+    private ?File $file = null;
+
+    #[ORM\Column(nullable: true)]
     private ?string $nomFichier = null;
 
-    #[ORM\Column(length: 500, nullable: false)]
-    private ?string $contenuFichier = null;
+    #[ORM\ManyToOne(inversedBy: 'fichier')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?DemandeAbonnement $demandeAbonnement = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\ManyToOne(targetEntity:Abonnement::class, inversedBy: 'fichiers')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Abonnement $abonnement = null;
 
-    public function getIdfichier(): ?int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getNomfichier(): ?string
+    public function getNomFichier(): ?string
     {
         return $this->nomFichier;
     }
 
-    public function setNomfichier(string $nomFichier): static
+    public function setNomFichier(string $nomFichier): static
     {
         $this->nomFichier = $nomFichier;
-
         return $this;
     }
 
-    public function getContenufichier(): ?string
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
-        return $this->contenuFichier;
+        return $this->updatedAt;
     }
 
-    public function setContenufichier(string $contenuFichier): static
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
     {
-        $this->contenuFichier = $contenuFichier;
-
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 
@@ -64,5 +71,31 @@ class Fichier
         $this->abonnement = $abonnement;
 
         return $this;
+    }
+
+    public function getDemandeAbonnement(): ?DemandeAbonnement
+    {
+        return $this->demandeAbonnement;
+    }
+
+    public function setDemandeAbonnement(?DemandeAbonnement $demandeAbonnement): static
+    {
+        $this->demandeAbonnement = $demandeAbonnement;
+
+        return $this;
+    }
+
+    public function setFile(?File $file = null): void
+    {
+        $this->file = $file;
+
+        if ($file !== null) {
+            $this->updatedAt = new \DateTime();
+        }
+    }
+
+    public function getFile(): ?File
+    {
+        return $this->file;
     }
 }
