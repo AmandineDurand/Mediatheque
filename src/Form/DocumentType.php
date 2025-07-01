@@ -58,7 +58,7 @@ class DocumentType extends AbstractType
             ])
             ->add('categories', EntityType::class, [
                 'class' => Categorie::class,
-                'choice_label' => 'nomcat',
+                'choice_label' => 'nom',
                 'multiple' => true,
                 'expanded' => true,
                 'label' => 'Catégories'

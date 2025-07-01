@@ -45,7 +45,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Document::class, inversedBy: 'utilisateursAimant')]
     #[ORM\JoinTable(name: 'Aime', 
     joinColumns: [new ORM\JoinColumn(name: 'idUtil', referencedColumnName: 'id')],
-    inverseJoinColumns: [new ORM\JoinColumn(name: 'idDoc', referencedColumnName: 'id')]
+    inverseJoinColumns: [new ORM\JoinColumn(name: 'idDoc', referencedColumnName: 'id', onDelete: 'CASCADE')]
     )]
     private Collection $documentsAimes;
 

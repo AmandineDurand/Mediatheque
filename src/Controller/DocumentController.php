@@ -378,7 +378,20 @@ final class DocumentController extends AbstractController
     #[Route('document/{id}', name: 'app_document_delete', methods: ['POST'])]
     public function supprimer(Request $request, Document $document, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$document->getId(), $request->getPayload()->getString('_token'))) {
+        // if ($this->isCsrfTokenValid('delete'.$document->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$document->getId(), $request->request->get('_token'))) {
+
+            foreach ($document->getUtilisateursAimant() as $user) {
+            $document->removeUtilisateursAimant($user);
+            }
+
+            foreach ($document->getCommandes() as $commande) {
+                $document->removeCommande($commande);
+            }
+
+            foreach ($document->getCategories() as $categorie) {
+                $document->removeCategory($categorie);
+            }
             $entityManager->remove($document);
             $entityManager->flush();
         }

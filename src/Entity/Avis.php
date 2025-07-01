@@ -26,7 +26,7 @@ class Avis
     private ?Utilisateur $utilisateur = null;
 
     #[ORM\ManyToOne(targetEntity: Document::class, inversedBy: 'avis')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Document $document = null;
 
     public function getId(): ?int

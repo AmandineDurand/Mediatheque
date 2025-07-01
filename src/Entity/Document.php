@@ -71,7 +71,7 @@ class Document
     /**
      * @var Collection<int, Avis>
      */
-    #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'document')]
+    #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'document', orphanRemoval: true, cascade: ['remove'])]
     private Collection $avis;
 
     /**
@@ -79,7 +79,7 @@ class Document
      */
     #[ORM\ManyToMany(targetEntity: Categorie::class, inversedBy: 'documents')]
     #[ORM\JoinTable(name: 'Appartient', 
-    joinColumns: [new ORM\JoinColumn(name: 'idDoc', referencedColumnName: 'id')],
+    joinColumns: [new ORM\JoinColumn(name: 'idDoc', referencedColumnName: 'id', onDelete: 'CASCADE')],
     inverseJoinColumns: [new ORM\JoinColumn(name: 'idCat', referencedColumnName: 'id')]
     )]
     private Collection $categories;
